@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import LandingPage from './LandingPage';
 import HostDashboard from './HostDashboard';
 import ParticipantView from './ParticipantView';
+import NameInputForm from './NameInputForm';
 import { generateCode, useSessionStorage } from './utils';
 
 // ============================================
@@ -51,6 +52,7 @@ const InteractivePresentationApp = () => {
   
   const [results, setResults] = useState({}); // Live resultaten per vraag/button
   const [userVotes, setUserVotes] = useState({}); // Track deelnemer's votes: { questionId: buttonId }
+  const [participantName, setParticipantName] = useState(''); // Deelnemers naam
 
   const { saveSession, loadSession, subscribeSession } = useSessionStorage();
 
@@ -246,9 +248,20 @@ const InteractivePresentationApp = () => {
     );
   }
 
+  // Participant moet eerst naam invullen
+  if (!participantName) {
+    return (
+      <NameInputForm
+        sessionCode={sessionCode}
+        onNameSubmit={(name) => setParticipantName(name)}
+      />
+    );
+  }
+
   return (
     <ParticipantView
       sessionCode={sessionCode}
+      participantName={participantName}
       questions={questions}
       onButtonClick={handleButtonClick}
       userVotes={userVotes}

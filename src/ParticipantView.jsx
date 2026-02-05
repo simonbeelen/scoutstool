@@ -6,7 +6,7 @@ import { styles } from './styles';
 // PARTICIPANT VIEW - SIMPLE & CLEAR
 // ============================================
 
-export const ParticipantView = ({ sessionCode, questions = [], onButtonClick, userVotes = {} }) => {
+export const ParticipantView = ({ sessionCode, participantName = '', questions = [], onButtonClick, userVotes = {} }) => {
   // Safety check
   if (!Array.isArray(questions)) {
     questions = [];
@@ -23,7 +23,7 @@ export const ParticipantView = ({ sessionCode, questions = [], onButtonClick, us
         <div style={styles.participantHeaderSection}>
           <div style={styles.sessionBadgeParticipant}>
             <div style={styles.statusDotParticipant}></div>
-            <span>Sessie: {sessionCode}</span>
+            <span>Sessie: {sessionCode} • {participantName}</span>
           </div>
           <h1 style={styles.participantMainTitle}>Beantwoord de vragen</h1>
           {activeQuestions.length === 0 && (
