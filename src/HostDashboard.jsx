@@ -379,19 +379,25 @@ export const HostDashboard = ({
           });
         });
       }
-      // For ranking - show the ranking order
+      // For ranking - just show the question and participant name (don't show rank indices)
       else if (type === 'ranking') {
+        // Get unique participant names who participated in this ranking
+        const rankingParticipants = new Set();
         Object.keys(buttonResponses).forEach((rankKey) => {
           const names = buttonResponses[rankKey] || [];
           names.forEach((name) => {
-            if (!participants[name]) {
-              participants[name] = [];
-            }
-            participants[name].push({
-              questionId: questionIdNum,
-              questionText: question.question,
-              answerLabel: `Ranking: ${rankKey}`,
-            });
+            rankingParticipants.add(name);
+          });
+        });
+        
+        rankingParticipants.forEach((name) => {
+          if (!participants[name]) {
+            participants[name] = [];
+          }
+          participants[name].push({
+            questionId: questionIdNum,
+            questionText: question.question,
+            answerLabel: 'Rangschikking voltooid',
           });
         });
       }
