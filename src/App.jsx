@@ -29,26 +29,26 @@ const InteractivePresentationApp = () => {
     },
     {
       id: 2,
-      question: 'Welk kamp verkies je?',
+      question: 'Wil je GRL worden?',
       active: false,
       showVoters: false,
       buttons: [
-        { id: 1, label: 'Zomerkamp', color: '#f59e0b' },
-        { id: 2, label: 'Winterkamp', color: '#3b82f6' },
-        { id: 3, label: 'Beide', color: '#8b5cf6' },
-        { id: 4, label: 'Geen van beide', color: '#6b7280' },
+        { id: 1, label: 'Ja, zeker!', color: '#10b981' },
+        { id: 2, label: 'Nee', color: '#ef4444' },
+        { id: 3, label: 'Misschien', color: '#f59e0b' },
+        { id: 4, label: 'Weet niet', color: '#6b7280' },
       ]
     },
     {
       id: 3,
-      question: 'Hoeveel jaar ben je al leiding?',
+      question: 'Wat vind je van de huidige vergaderingen?',
       active: false,
       showVoters: false,
       buttons: [
-        { id: 1, label: '0-2 jaar', color: '#10b981' },
-        { id: 2, label: '3-5 jaar', color: '#3b82f6' },
-        { id: 3, label: '6-10 jaar', color: '#f59e0b' },
-        { id: 4, label: '10+ jaar', color: '#ef4444' },
+        { id: 1, label: 'Heel leuk', color: '#10b981' },
+        { id: 2, label: 'Leuk', color: '#3b82f6' },
+        { id: 3, label: 'Gaat wel', color: '#f59e0b' },
+        { id: 4, label: 'Kan beter', color: '#ef4444' },
       ]
     },
   ]);
