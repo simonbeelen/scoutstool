@@ -191,6 +191,26 @@ export const HostDashboard = ({
     setFormTouched(false);
   };
 
+  const buildParticipantSummary = () => {
+    const participants = {};
+    questions.forEach((question) => {
+      question.buttons.forEach((button) => {
+        const names = (responses[question.id] && responses[question.id][button.id]) || [];
+        names.forEach((name) => {
+          if (!participants[name]) {
+            participants[name] = [];
+          }
+          participants[name].push({
+            questionId: question.id,
+            questionText: question.question,
+            answerLabel: button.label,
+          });
+        });
+      });
+    });
+    return participants;
+  };
+
   return (
     <div style={styles.container}>
       <div style={styles.content}>
@@ -323,33 +343,23 @@ export const HostDashboard = ({
             </div>
             {showSummary && (
               <div style={styles.summaryContent}>
-                {questions.map((question) => (
-                  <div key={`summary-${question.id}`} style={styles.summaryQuestion}>
-                    <div style={styles.summaryQuestionTitle}>
-                      Vraag {question.id}: {question.question}
-                    </div>
+                {Object.entries(buildParticipantSummary()).length === 0 && (
+                  <div style={styles.summaryEmpty}>Nog geen stemmen binnen.</div>
+                )}
+                {Object.entries(buildParticipantSummary()).map(([name, votes]) => (
+                  <div key={`summary-${name}`} style={styles.summaryQuestion}>
+                    <div style={styles.summaryQuestionTitle}>{name}</div>
                     <div style={styles.summaryAnswers}>
-                      {question.buttons.map((button) => {
-                        const names = (responses[question.id] && responses[question.id][button.id]) || [];
-                        return (
-                          <div key={`summary-${question.id}-${button.id}`} style={styles.summaryAnswerRow}>
-                            <span style={styles.summaryAnswerLabel}>
-                              {button.label}
-                            </span>
-                            <div style={styles.summaryAnswerNames}>
-                              {names.length > 0 ? (
-                                names.map((name, index) => (
-                                  <span key={`${question.id}-${button.id}-${index}`} style={styles.voterTag}>
-                                    {name}
-                                  </span>
-                                ))
-                              ) : (
-                                <span style={styles.summaryEmpty}>Geen stemmen</span>
-                              )}
-                            </div>
+                      {votes.map((vote, index) => (
+                        <div key={`${name}-${index}`} style={styles.summaryAnswerRow}>
+                          <span style={styles.summaryAnswerLabel}>
+                            Vraag {vote.questionId}: {vote.questionText}
+                          </span>
+                          <div style={styles.summaryAnswerNames}>
+                            <span style={styles.voterTag}>{vote.answerLabel}</span>
                           </div>
-                        );
-                      })}
+                        </div>
+                      ))}
                     </div>
                   </div>
                 ))}
