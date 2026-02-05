@@ -26,6 +26,11 @@ export const LandingPage = ({ onStartHost, onJoinSession }) => {
   return (
     <div style={styles.container}>
       <div style={styles.landingContent}>
+        <img 
+          src="https://www.scoutsjuventamerchtem.be/assets/img/logo.png" 
+          alt="Scouts Juventa Merchtem"
+          style={{ maxWidth: '200px', marginBottom: '20px' }}
+        />
         <h1 style={styles.title}>InteractQ</h1>
         <p style={styles.subtitle}>Interactieve presentatie tool</p>
 
