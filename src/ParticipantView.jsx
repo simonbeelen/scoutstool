@@ -85,3 +85,6 @@ export const ParticipantView = ({ sessionCode, questions = [], onButtonClick }) 
     </div>
   );
 };
+
+// Default export voor compatibiliteit
+export default ParticipantView;

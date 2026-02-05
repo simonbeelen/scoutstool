@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { LandingPage } from './LandingPage';
-import { HostDashboard } from './HostDashboard';
-import { ParticipantView } from './ParticipantView';
+import LandingPage from './LandingPage';
+import HostDashboard from './HostDashboard';
+import ParticipantView from './ParticipantView';
 import { generateCode, useSessionStorage } from './utils';
 
 // ============================================
