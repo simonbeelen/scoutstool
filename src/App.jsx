@@ -12,11 +12,9 @@ const InteractivePresentationApp = () => {
   const [mode, setMode] = useState(null);
   const [sessionCode, setSessionCode] = useState('');
   const [buttons, setButtons] = useState([
-    { id: 1, label: 'Optie A', unlocked: false, color: '#7c3aed' },
-    { id: 2, label: 'Optie B', unlocked: false, color: '#2563eb' },
-    { id: 3, label: 'Optie C', unlocked: false, color: '#059669' },
-    { id: 4, label: 'Optie D', unlocked: false, color: '#ea580c' },
-    { id: 5, label: 'Optie E', unlocked: false, color: '#db2777' },
+    { id: 1, label: 'Ja, blijf leiding', unlocked: false, color: '#10b981' },
+    { id: 2, label: 'Nee, stop ermee', unlocked: false, color: '#ef4444' },
+    { id: 3, label: 'Misschien/Twijfel', unlocked: false, color: '#f59e0b' },
   ]);
   const [clickCounts, setClickCounts] = useState({});
 
@@ -58,6 +56,7 @@ const InteractivePresentationApp = () => {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (mode === 'participant' && sessionCode) {
       const interval = setInterval(async () => {
