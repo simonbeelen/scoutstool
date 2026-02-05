@@ -119,77 +119,144 @@ const InteractivePresentationApp = () => {
   };
 
   // Add new question (host)
-  const addQuestion = async (questionText, optionLabels, openImmediately = true) => {
+  const addQuestion = async (questionText, optionLabels, openImmediately = true, typeConfig = {}) => {
     try {
       const trimmedQuestion = (questionText || '').trim();
-      const cleanOptions = (optionLabels || [])
-        .map((label) => (label || '').trim())
-        .filter((label) => label.length > 0);
-
-      if (!trimmedQuestion || cleanOptions.length < 2) {
-        return;
-      }
+      if (!trimmedQuestion) return;
 
       const nextId = questions.length > 0 ? Math.max(...questions.map((q) => q.id)) + 1 : 1;
-      const newQuestion = {
-        id: nextId,
-        question: trimmedQuestion,
-        active: !!openImmediately,
-        showVoters: false,
-        buttons: cleanOptions.map((label, index) => ({
-          id: index + 1,
-          label,
-          color: optionColors[index % optionColors.length],
-        })),
-      };
+      const type = typeConfig.type || 'multipleChoice';
 
-      const updatedQuestions = [...questions, newQuestion];
-      setQuestions(updatedQuestions);
-      await saveSession(sessionCode, { questions: updatedQuestions, results, responses });
+      let newQuestion;
+
+      if (type === 'multipleChoice') {
+        const cleanOptions = (optionLabels || [])
+          .map((label) => (label || '').trim())
+          .filter((label) => label.length > 0);
+        if (cleanOptions.length < 2) return;
+
+        newQuestion = {
+          id: nextId,
+          question: trimmedQuestion,
+          type: 'multipleChoice',
+          active: !!openImmediately,
+          showVoters: false,
+          buttons: cleanOptions.map((label, index) => ({
+            id: index + 1,
+            label,
+            color: optionColors[index % optionColors.length],
+          })),
+        };
+      } else if (type === 'dragDrop') {
+        const { dragDropCorrect, dragDropWrong } = typeConfig;
+        const cleanWrong = (dragDropWrong || [])
+          .map((label) => (label || '').trim())
+          .filter((label) => label.length > 0);
+        
+        if (!dragDropCorrect?.trim() || cleanWrong.length < 1) return;
+
+        const allAnswers = [dragDropCorrect.trim(), ...cleanWrong];
+        newQuestion = {
+          id: nextId,
+          question: trimmedQuestion,
+          type: 'dragDrop',
+          active: !!openImmediately,
+          showVoters: false,
+          correctAnswer: dragDropCorrect.trim(),
+          wrongAnswers: cleanWrong,
+          items: allAnswers.sort(() => Math.random() - 0.5), // Shuffle
+        };
+      } else if (type === 'trueFalse') {
+        const { trueFalseAnswer } = typeConfig;
+        newQuestion = {
+          id: nextId,
+          question: trimmedQuestion,
+          type: 'trueFalse',
+          active: !!openImmediately,
+          showVoters: false,
+          correctAnswer: trueFalseAnswer === 'true',
+          buttons: [
+            { id: 1, label: 'Waar', color: '#10b981' },
+            { id: 2, label: 'Onwaar', color: '#ef4444' },
+          ],
+        };
+      } else if (type === 'ranking') {
+        const { rankingItems } = typeConfig;
+        const cleanItems = (rankingItems || [])
+          .map((label) => (label || '').trim())
+          .filter((label) => label.length > 0);
+        if (cleanItems.length < 2) return;
+
+        newQuestion = {
+          id: nextId,
+          question: trimmedQuestion,
+          type: 'ranking',
+          active: !!openImmediately,
+          showVoters: false,
+          items: cleanItems,
+          correctOrder: [...cleanItems], // Original order is correct
+        };
+      }
+
+      if (newQuestion) {
+        const updatedQuestions = [...questions, newQuestion];
+        setQuestions(updatedQuestions);
+        await saveSession(sessionCode, { questions: updatedQuestions, results, responses });
+      }
     } catch (error) {
       console.error('Error adding question:', error);
     }
   };
 
   // Handle button click (participant) - update results
-  const handleButtonClick = async (questionId, buttonId) => {
+  const handleButtonClick = async (questionId, buttonId, additionalData = null) => {
     const question = questions.find(q => q.id === questionId);
     if (!question || !question.active) return;
 
     const name = participantName.trim();
     if (!name) return;
 
-    const hasVoted = userVotes[questionId];
+    const type = question.type || 'multipleChoice';
     const newResults = { ...results };
     const questionResponses = { ...(responses[questionId] || {}) };
+    const hasVoted = userVotes[questionId];
 
-    // Als je al hebt gestemd en je klikt op dezelfde knop → stem verwijderen
-    if (hasVoted === buttonId) {
-      const key = `${questionId}-${buttonId}`;
-      newResults[key] = Math.max(0, (newResults[key] || 1) - 1);
-      const updatedNames = (questionResponses[buttonId] || []).filter((n) => n !== name);
-      if (updatedNames.length > 0) {
-        questionResponses[buttonId] = updatedNames;
+    if (type === 'multipleChoice' || type === 'trueFalse') {
+      // Als je al hebt gestemd en je klikt op dezelfde knop → stem verwijderen
+      if (hasVoted === buttonId) {
+        const key = `${questionId}-${buttonId}`;
+        newResults[key] = Math.max(0, (newResults[key] || 1) - 1);
+        const updatedNames = (questionResponses[buttonId] || []).filter((n) => n !== name);
+        if (updatedNames.length > 0) {
+          questionResponses[buttonId] = updatedNames;
+        } else {
+          delete questionResponses[buttonId];
+        }
+        setUserVotes((prev) => {
+          const updated = { ...prev };
+          delete updated[questionId];
+          return updated;
+        });
+      } else if (hasVoted) {
+        // Je hebt al gestemd op een ander antwoord → kan niet veranderen
+        return;
       } else {
-        delete questionResponses[buttonId];
+        // Je hebt nog niet gestemd → stem toevoegen
+        const key = `${questionId}-${buttonId}`;
+        newResults[key] = (newResults[key] || 0) + 1;
+        const existingNames = questionResponses[buttonId] || [];
+        if (!existingNames.includes(name)) {
+          questionResponses[buttonId] = [...existingNames, name];
+        }
+        setUserVotes((prev) => ({ ...prev, [questionId]: buttonId }));
       }
-      setUserVotes((prev) => {
-        const updated = { ...prev };
-        delete updated[questionId];
-        return updated;
+    } else if (type === 'ranking' && additionalData) {
+      // Ranking: additionalData is the sorted array
+      additionalData.forEach((item, index) => {
+        const key = `rank-${index}`;
+        questionResponses[key] = [name];
       });
-    } else if (hasVoted) {
-      // Je hebt al gestemd op een ander antwoord → kan niet veranderen
-      return;
-    } else {
-      // Je hebt nog niet gestemd → stem toevoegen
-      const key = `${questionId}-${buttonId}`;
-      newResults[key] = (newResults[key] || 0) + 1;
-      const existingNames = questionResponses[buttonId] || [];
-      if (!existingNames.includes(name)) {
-        questionResponses[buttonId] = [...existingNames, name];
-      }
-      setUserVotes((prev) => ({ ...prev, [questionId]: buttonId }));
+      setUserVotes((prev) => ({ ...prev, [questionId]: 'submitted' }));
     }
 
     const updatedResponses = { ...responses, [questionId]: questionResponses };
