@@ -154,6 +154,7 @@ export const HostDashboard = ({
   const [newOptions, setNewOptions] = useState(['', '', '', '']);
   const [formTouched, setFormTouched] = useState(false);
   const [openOnAdd, setOpenOnAdd] = useState(true);
+  const [showSummary, setShowSummary] = useState(false);
 
   const copyCode = () => {
     navigator.clipboard.writeText(sessionCode);
@@ -308,6 +309,53 @@ export const HostDashboard = ({
               onToggleShowVoters={onToggleShowVoters}
             />
           ))}
+
+          {/* Post-presentation summary */}
+          <div style={styles.summaryCard}>
+            <div style={styles.summaryHeader}>
+              <h2 style={styles.summaryTitle}>Overzicht na presentatie</h2>
+              <button
+                onClick={() => setShowSummary((prev) => !prev)}
+                style={styles.summaryToggle}
+              >
+                {showSummary ? 'Verberg overzicht' : 'Toon overzicht'}
+              </button>
+            </div>
+            {showSummary && (
+              <div style={styles.summaryContent}>
+                {questions.map((question) => (
+                  <div key={`summary-${question.id}`} style={styles.summaryQuestion}>
+                    <div style={styles.summaryQuestionTitle}>
+                      Vraag {question.id}: {question.question}
+                    </div>
+                    <div style={styles.summaryAnswers}>
+                      {question.buttons.map((button) => {
+                        const names = (responses[question.id] && responses[question.id][button.id]) || [];
+                        return (
+                          <div key={`summary-${question.id}-${button.id}`} style={styles.summaryAnswerRow}>
+                            <span style={styles.summaryAnswerLabel}>
+                              {button.label}
+                            </span>
+                            <div style={styles.summaryAnswerNames}>
+                              {names.length > 0 ? (
+                                names.map((name, index) => (
+                                  <span key={`${question.id}-${button.id}-${index}`} style={styles.voterTag}>
+                                    {name}
+                                  </span>
+                                ))
+                              ) : (
+                                <span style={styles.summaryEmpty}>Geen stemmen</span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
