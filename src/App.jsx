@@ -51,7 +51,7 @@ const InteractivePresentationApp = () => {
   
   const [results, setResults] = useState({}); // Live resultaten per vraag/button
 
-  const { saveSession, loadSession } = useSessionStorage();
+  const { saveSession, loadSession, subscribeSession } = useSessionStorage();
 
   const startAsHost = async () => {
     const code = generateCode();
@@ -170,7 +170,24 @@ const InteractivePresentationApp = () => {
   useEffect(() => {
     if (sessionCode && mode) {
       console.log(`🔄 Starting sync for ${mode} with code: ${sessionCode}`);
-      
+
+      const unsubscribe = subscribeSession
+        ? subscribeSession(sessionCode, (data) => {
+            if (data && data.questions && Array.isArray(data.questions)) {
+              console.log('📥 Synced (realtime) - Active questions:', data.questions.filter(q => q.active).length);
+              setQuestions(data.questions);
+              setResults(data.results || {});
+            }
+          })
+        : null;
+
+      if (unsubscribe) {
+        return () => {
+          console.log('🛑 Stopping realtime sync');
+          unsubscribe();
+        };
+      }
+
       const interval = setInterval(async () => {
         try {
           const data = await loadSession(sessionCode);
@@ -183,7 +200,7 @@ const InteractivePresentationApp = () => {
           console.error('❌ Error syncing:', error);
         }
       }, 1000); // Snellere sync: elke 1 seconde
-      
+
       return () => {
         console.log('🛑 Stopping sync');
         clearInterval(interval);
