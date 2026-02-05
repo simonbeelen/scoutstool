@@ -1,27 +1,31 @@
 // ============================================
-// STYLES
+// STYLES - LIVE RESULTS SYSTEM
 // ============================================
 
 export const styles = {
-  // Layout
+  // ============================================
+  // BASE LAYOUT
+  // ============================================
   container: {
     minHeight: '100vh',
     backgroundColor: '#f5f5f5',
     padding: '20px',
-    fontFamily: 'Arial, sans-serif',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   },
   content: {
-    maxWidth: '1200px',
+    maxWidth: '1400px',
     margin: '0 auto',
   },
+  
+  // ============================================
+  // LANDING PAGE
+  // ============================================
   landingContent: {
     maxWidth: '800px',
     margin: '0 auto',
     textAlign: 'center',
     paddingTop: '60px',
   },
-
-  // Typography
   title: {
     fontSize: '48px',
     fontWeight: 'bold',
@@ -33,58 +37,19 @@ export const styles = {
     color: '#666',
     marginBottom: '50px',
   },
-  pageTitle: {
-    fontSize: '32px',
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: '5px',
-  },
-  pageSubtitle: {
-    fontSize: '16px',
-    color: '#666',
-  },
-  participantTitle: {
-    fontSize: '36px',
-    fontWeight: 'bold',
-    color: '#333',
-    margin: '15px 0 10px 0',
-  },
-  participantSubtitle: {
-    fontSize: '16px',
-    color: '#666',
-  },
-
-  // Cards & Containers
-  card: {
-    backgroundColor: 'white',
-    padding: '30px',
-    borderRadius: '8px',
-    border: '1px solid #ddd',
-  },
   buttonGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
     gap: '20px',
     marginTop: '30px',
   },
-  header: {
+  card: {
     backgroundColor: 'white',
-    padding: '20px',
-    borderRadius: '8px',
-    marginBottom: '30px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: '20px',
-    border: '1px solid #ddd',
+    padding: '40px',
+    borderRadius: '12px',
+    border: '2px solid #e5e7eb',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
   },
-  participantHeader: {
-    textAlign: 'center',
-    marginBottom: '40px',
-  },
-
-  // Icons & Labels
   icon: {
     color: '#666',
     marginBottom: '15px',
@@ -100,155 +65,432 @@ export const styles = {
     color: '#666',
     marginBottom: '20px',
   },
-
-  // Buttons
+  input: {
+    width: '100%',
+    padding: '16px',
+    fontSize: '20px',
+    textAlign: 'center',
+    border: '2px solid #e5e7eb',
+    borderRadius: '8px',
+    fontWeight: 'bold',
+    letterSpacing: '4px',
+    textTransform: 'uppercase',
+  },
   primaryButton: {
     width: '100%',
-    padding: '12px',
+    padding: '16px',
     backgroundColor: '#2563eb',
     color: 'white',
     border: 'none',
-    borderRadius: '6px',
+    borderRadius: '8px',
     fontSize: '16px',
-    fontWeight: 'bold',
+    fontWeight: '600',
     cursor: 'pointer',
     marginTop: '10px',
+    transition: 'background-color 0.2s',
   },
-  toggleButton: {
-    width: '100%',
-    padding: '12px',
-    color: 'white',
-    border: 'none',
-    borderRadius: '6px',
-    fontSize: '14px',
+
+  // ============================================
+  // HOST DASHBOARD - LIVE RESULTS
+  // ============================================
+  hostHeader: {
+    backgroundColor: 'white',
+    padding: '30px',
+    borderRadius: '12px',
+    marginBottom: '30px',
+    border: '2px solid #e5e7eb',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '20px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+  },
+  hostHeaderLeft: {
+    flex: 1,
+  },
+  hostTitle: {
+    fontSize: '32px',
     fontWeight: 'bold',
-    cursor: 'pointer',
-    marginTop: '10px',
+    color: '#111827',
+    marginBottom: '5px',
+  },
+  hostSubtitle: {
+    fontSize: '16px',
+    color: '#6b7280',
+  },
+  hostHeaderRight: {
+    display: 'flex',
+    gap: '20px',
+    alignItems: 'center',
+  },
+  statsBox: {
+    backgroundColor: '#f9fafb',
+    padding: '15px 25px',
+    borderRadius: '8px',
+    border: '2px solid #e5e7eb',
+    textAlign: 'center',
+  },
+  statsLabel: {
+    display: 'block',
+    fontSize: '12px',
+    color: '#6b7280',
+    marginBottom: '5px',
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
+  },
+  statsNumber: {
+    display: 'block',
+    fontSize: '28px',
+    fontWeight: 'bold',
+    color: '#2563eb',
+  },
+  codeBox: {
+    textAlign: 'right',
+  },
+  codeLabel: {
+    display: 'block',
+    fontSize: '12px',
+    color: '#6b7280',
+    marginBottom: '5px',
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
+  },
+  codeDisplay: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    backgroundColor: '#f9fafb',
+    padding: '12px 15px',
+    borderRadius: '8px',
+    border: '2px solid #e5e7eb',
+  },
+  codeText: {
+    fontSize: '24px',
+    fontWeight: 'bold',
+    letterSpacing: '3px',
+    color: '#111827',
   },
   iconButton: {
     padding: '8px',
     backgroundColor: 'transparent',
     border: 'none',
     cursor: 'pointer',
-    color: '#666',
+    color: '#6b7280',
+    borderRadius: '4px',
+    transition: 'background-color 0.2s',
   },
-  interactiveButton: {
+
+  // ============================================
+  // QUESTION CARDS
+  // ============================================
+  questionsContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '25px',
+  },
+  questionCard: {
+    backgroundColor: 'white',
     padding: '30px',
+    borderRadius: '12px',
+    border: '2px solid #e5e7eb',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+  },
+  questionCardHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: '25px',
+    paddingBottom: '20px',
+    borderBottom: '2px solid #f3f4f6',
+  },
+  questionCardTitleSection: {
+    flex: 1,
+  },
+  questionCardNumber: {
+    display: 'block',
+    fontSize: '13px',
+    fontWeight: '600',
+    color: '#2563eb',
+    marginBottom: '8px',
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
+  },
+  questionCardTitle: {
+    fontSize: '24px',
+    fontWeight: 'bold',
+    color: '#111827',
+    margin: 0,
+  },
+  questionCardActions: {
+    display: 'flex',
+    gap: '10px',
+  },
+  toggleQuestionButton: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '12px 20px',
+    color: 'white',
     border: 'none',
     borderRadius: '8px',
-    color: 'white',
-    fontSize: '16px',
-    fontWeight: 'bold',
-    position: 'relative',
-    minHeight: '180px',
+    fontSize: '14px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'opacity 0.2s',
+  },
+  resetButton: {
     display: 'flex',
-    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-
-  // Input
-  input: {
-    width: '100%',
     padding: '12px',
-    fontSize: '18px',
-    textAlign: 'center',
-    border: '2px solid #ddd',
-    borderRadius: '6px',
-    fontWeight: 'bold',
-    letterSpacing: '3px',
+    backgroundColor: '#f3f4f6',
+    color: '#6b7280',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s',
   },
 
-  // Code Display
-  codeContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-end',
+  // ============================================
+  // RESULTS SECTION
+  // ============================================
+  resultsSection: {
+    marginTop: '20px',
   },
-  label: {
-    fontSize: '12px',
-    color: '#666',
-    marginBottom: '5px',
-  },
-  codeDisplay: {
+  resultsSummary: {
     display: 'flex',
     alignItems: 'center',
     gap: '10px',
-    backgroundColor: '#f9f9f9',
-    padding: '10px 15px',
-    borderRadius: '6px',
-    border: '1px solid #ddd',
-  },
-  code: {
-    fontSize: '24px',
-    fontWeight: 'bold',
-    letterSpacing: '3px',
-    color: '#333',
-  },
-
-  // Button Control
-  buttonControl: {
-    backgroundColor: 'white',
-    padding: '20px',
+    marginBottom: '20px',
+    padding: '12px',
+    backgroundColor: '#f9fafb',
     borderRadius: '8px',
-    border: '1px solid #ddd',
   },
-  buttonControlHeader: {
+  totalVotesText: {
+    fontSize: '15px',
+    fontWeight: '600',
+    color: '#374151',
+  },
+  resultsGrid: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '15px',
+  },
+  resultItem: {
+    padding: '15px',
+    backgroundColor: '#f9fafb',
+    borderRadius: '8px',
+    border: '1px solid #e5e7eb',
+  },
+  resultItemHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '15px',
+    marginBottom: '10px',
   },
-  buttonLabel: {
-    fontSize: '18px',
+  resultItemLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+  },
+  colorDot: {
+    width: '12px',
+    height: '12px',
+    borderRadius: '50%',
+  },
+  resultItemText: {
+    fontSize: '15px',
+    fontWeight: '600',
+    color: '#374151',
+  },
+  resultItemCount: {
+    fontSize: '15px',
     fontWeight: 'bold',
-    color: '#333',
+    color: '#111827',
   },
-
-  // Interactive Button Elements
-  buttonIcon: {
-    position: 'absolute',
-    top: '15px',
-    right: '15px',
-    opacity: 0.8,
+  progressBar: {
+    width: '100%',
+    height: '8px',
+    backgroundColor: '#e5e7eb',
+    borderRadius: '4px',
+    overflow: 'hidden',
   },
-  buttonNumber: {
-    fontSize: '48px',
-    fontWeight: 'bold',
-    marginBottom: '5px',
+  progressFill: {
+    height: '100%',
+    transition: 'width 0.3s ease',
+    borderRadius: '4px',
   },
-  buttonText: {
-    fontSize: '18px',
-    fontWeight: 'bold',
-  },
-  clickBadge: {
-    marginTop: '10px',
-    padding: '5px 12px',
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    borderRadius: '12px',
+  activeBadge: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    marginTop: '20px',
+    padding: '12px',
+    backgroundColor: '#ecfdf5',
+    borderRadius: '8px',
+    border: '1px solid #10b981',
+    color: '#065f46',
     fontSize: '14px',
+    fontWeight: '600',
+  },
+  pulseDot: {
+    width: '10px',
+    height: '10px',
+    backgroundColor: '#10b981',
+    borderRadius: '50%',
+    animation: 'pulse 2s infinite',
   },
 
-  // Status
-  sessionBadge: {
+  // ============================================
+  // PARTICIPANT VIEW
+  // ============================================
+  participantContainer: {
+    minHeight: '100vh',
+    backgroundColor: '#f5f5f5',
+    padding: '20px',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  },
+  participantContent: {
+    maxWidth: '900px',
+    margin: '0 auto',
+  },
+  participantHeaderSection: {
+    textAlign: 'center',
+    marginBottom: '40px',
+  },
+  sessionBadgeParticipant: {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '8px',
     backgroundColor: 'white',
-    padding: '8px 16px',
+    padding: '10px 20px',
     borderRadius: '20px',
-    border: '1px solid #ddd',
+    border: '2px solid #e5e7eb',
     fontSize: '14px',
-    fontWeight: 'bold',
+    fontWeight: '600',
+    marginBottom: '20px',
   },
-  statusDot: {
-    width: '8px',
-    height: '8px',
+  statusDotParticipant: {
+    width: '10px',
+    height: '10px',
     borderRadius: '50%',
     backgroundColor: '#10b981',
   },
+  participantMainTitle: {
+    fontSize: '36px',
+    fontWeight: 'bold',
+    color: '#111827',
+    marginBottom: '10px',
+  },
+  waitingText: {
+    fontSize: '16px',
+    color: '#6b7280',
+  },
+  participantQuestionCard: {
+    backgroundColor: 'white',
+    padding: '30px',
+    borderRadius: '12px',
+    marginBottom: '30px',
+    border: '2px solid #e5e7eb',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+  },
+  participantQuestionHeader: {
+    marginBottom: '25px',
+    paddingBottom: '20px',
+    borderBottom: '2px solid #f3f4f6',
+  },
+  participantQuestionNumber: {
+    display: 'block',
+    fontSize: '13px',
+    fontWeight: '600',
+    color: '#2563eb',
+    marginBottom: '10px',
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
+  },
+  participantQuestionTitle: {
+    fontSize: '28px',
+    fontWeight: 'bold',
+    color: '#111827',
+    margin: 0,
+  },
+  participantButtonsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '15px',
+  },
+  participantButton: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '20px',
+    color: 'white',
+    border: 'none',
+    borderRadius: '10px',
+    cursor: 'pointer',
+    fontSize: '16px',
+    fontWeight: '600',
+    transition: 'transform 0.2s, box-shadow 0.2s',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+  },
+  participantButtonContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: '5px',
+    flex: 1,
+  },
+  participantButtonNumber: {
+    fontSize: '14px',
+    opacity: 0.9,
+    fontWeight: 'bold',
+  },
+  participantButtonLabel: {
+    fontSize: '18px',
+    fontWeight: 'bold',
+  },
+  closedQuestionsSection: {
+    marginTop: '40px',
+    padding: '20px',
+    backgroundColor: 'white',
+    borderRadius: '12px',
+    border: '2px solid #e5e7eb',
+  },
+  closedQuestionsTitle: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    fontSize: '16px',
+    fontWeight: '600',
+    color: '#6b7280',
+    marginBottom: '15px',
+  },
+  closedQuestionsList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
+  },
+  closedQuestionItem: {
+    padding: '12px',
+    backgroundColor: '#f9fafb',
+    borderRadius: '6px',
+    display: 'flex',
+    gap: '10px',
+  },
+  closedQuestionNumber: {
+    fontSize: '13px',
+    fontWeight: '600',
+    color: '#9ca3af',
+  },
+  closedQuestionText: {
+    fontSize: '14px',
+    color: '#6b7280',
+  },
 
-  // Modal
+  // ============================================
+  // MODAL (QR CODE)
+  // ============================================
   modal: {
     position: 'fixed',
     top: 0,
@@ -279,7 +521,7 @@ export const styles = {
   modalTitle: {
     fontSize: '24px',
     fontWeight: 'bold',
-    color: '#333',
+    color: '#111827',
     margin: 0,
   },
   closeButton: {
@@ -287,124 +529,64 @@ export const styles = {
     border: 'none',
     cursor: 'pointer',
     padding: '5px',
-    color: '#666',
+    color: '#6b7280',
   },
-
-  // QR Code
   qrContainer: {
     textAlign: 'center',
   },
   qrImage: {
     width: '300px',
     height: '300px',
-    border: '2px solid #ddd',
+    border: '2px solid #e5e7eb',
     borderRadius: '8px',
     padding: '10px',
     backgroundColor: 'white',
   },
   qrText: {
     fontSize: '16px',
-    color: '#666',
+    color: '#6b7280',
     marginTop: '15px',
     marginBottom: '10px',
   },
   qrSubText: {
     fontSize: '14px',
-    color: '#999',
+    color: '#9ca3af',
     marginTop: '10px',
   },
   qrCodeBox: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#f9fafb',
     padding: '15px',
     borderRadius: '8px',
-    border: '1px solid #ddd',
+    border: '2px solid #e5e7eb',
     marginTop: '10px',
   },
   qrCodeText: {
     fontSize: '32px',
     fontWeight: 'bold',
     letterSpacing: '5px',
-    color: '#333',
+    color: '#111827',
   },
 
-  // Question Selector
-  questionSelector: {
-    backgroundColor: 'white',
-    padding: '20px',
-    borderRadius: '8px',
-    marginBottom: '20px',
-    border: '1px solid #ddd',
-  },
-  selectorTitle: {
-    fontSize: '18px',
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: '15px',
-  },
-  questionList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px',
-  },
-  questionButton: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '15px',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    textAlign: 'left',
-  },
-  questionButtonContent: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '5px',
-  },
-  questionNumber: {
+  // OLD COMPATIBILITY
+  label: {
     fontSize: '12px',
-    fontWeight: 'bold',
-    opacity: 0.7,
+    color: '#666',
+    marginBottom: '5px',
   },
-  questionText: {
-    fontSize: '16px',
-    fontWeight: '600',
-  },
-
-  // Active Question Card
-  activeQuestionCard: {
-    backgroundColor: '#2563eb',
-    color: 'white',
-    padding: '20px',
-    borderRadius: '8px',
-    marginBottom: '20px',
-    textAlign: 'center',
-  },
-  activeQuestionTitle: {
+  code: {
     fontSize: '24px',
     fontWeight: 'bold',
-    margin: '0 0 8px 0',
+    letterSpacing: '3px',
+    color: '#333',
   },
-  activeQuestionSubtitle: {
-    fontSize: '14px',
-    opacity: 0.9,
-    margin: 0,
-  },
-
-  // Participant Question Display
-  questionTitleCard: {
-    backgroundColor: 'white',
-    padding: '20px',
-    borderRadius: '12px',
-    marginTop: '15px',
-    marginBottom: '10px',
-    border: '2px solid #ddd',
-  },
-  questionLabel: {
-    fontSize: '14px',
+  pageTitle: {
+    fontSize: '32px',
     fontWeight: 'bold',
-    color: '#2563eb',
-    textTransform: 'uppercase',
-    letterSpacing: '1px',
+    color: '#333',
+    marginBottom: '5px',
+  },
+  pageSubtitle: {
+    fontSize: '16px',
+    color: '#666',
   },
 };

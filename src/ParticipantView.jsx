@@ -1,92 +1,80 @@
 import React from 'react';
-import { Lock, Unlock } from 'lucide-react';
+import { Lock, Check } from 'lucide-react';
 import { styles } from './styles';
 
 // ============================================
-// INTERACTIVE BUTTON COMPONENT
+// PARTICIPANT VIEW - SIMPLE & CLEAR
 // ============================================
 
-export const InteractiveButton = ({ button, onClick, clickCount, questionId }) => {
-  return (
-    <button
-      onClick={onClick}
-      disabled={!button.unlocked}
-      style={{
-        ...styles.interactiveButton,
-        backgroundColor: button.unlocked ? button.color : '#e0e0e0',
-        cursor: button.unlocked ? 'pointer' : 'not-allowed',
-        opacity: button.unlocked ? 1 : 0.5,
-      }}
-    >
-      <div style={styles.buttonIcon}>
-        {button.unlocked ? <Unlock size={24} /> : <Lock size={24} />}
-      </div>
-      <div style={styles.buttonNumber}>{button.id}</div>
-      <div style={styles.buttonText}>{button.label}</div>
-      {clickCount > 0 && (
-        <div style={styles.clickBadge}>{clickCount}x geklikt</div>
-      )}
-    </button>
-  );
-};
-
-// ============================================
-// PARTICIPANT VIEW COMPONENT
-// ============================================
-
-export const ParticipantView = ({ sessionCode, question, onButtonClick, clickCounts }) => {
-  if (!question) {
-    return (
-      <div style={styles.container}>
-        <div style={styles.content}>
-          <div style={styles.participantHeader}>
-            <div style={styles.sessionBadge}>
-              <div style={styles.statusDot}></div>
-              <span>Sessie: {sessionCode}</span>
-            </div>
-            <h1 style={styles.participantTitle}>Wachten op vraag...</h1>
-            <p style={styles.participantSubtitle}>
-              De host heeft nog geen vraag geselecteerd
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+export const ParticipantView = ({ sessionCode, questions, onButtonClick }) => {
+  // Filter alleen actieve vragen
+  const activeQuestions = questions.filter(q => q.active);
 
   return (
-    <div style={styles.container}>
-      <div style={styles.content}>
+    <div style={styles.participantContainer}>
+      <div style={styles.participantContent}>
         {/* Header */}
-        <div style={styles.participantHeader}>
-          <div style={styles.sessionBadge}>
-            <div style={styles.statusDot}></div>
+        <div style={styles.participantHeaderSection}>
+          <div style={styles.sessionBadgeParticipant}>
+            <div style={styles.statusDotParticipant}></div>
             <span>Sessie: {sessionCode}</span>
           </div>
-          
-          {/* Vraag Titel */}
-          <div style={styles.questionTitleCard}>
-            <span style={styles.questionLabel}>Vraag {question.id}</span>
-            <h1 style={styles.participantTitle}>{question.question}</h1>
-          </div>
-          
-          <p style={styles.participantSubtitle}>
-            Klik op een ontgrendelde knop om te antwoorden
-          </p>
+          <h1 style={styles.participantMainTitle}>Beantwoord de vragen</h1>
+          {activeQuestions.length === 0 && (
+            <p style={styles.waitingText}>
+              Wachten op vragen van de presentator...
+            </p>
+          )}
         </div>
 
-        {/* Interactive Buttons */}
-        <div style={styles.buttonGrid}>
-          {question.buttons.map((button) => (
-            <InteractiveButton
-              key={button.id}
-              button={button}
-              questionId={question.id}
-              onClick={() => onButtonClick(button.id)}
-              clickCount={clickCounts[`${question.id}-${button.id}`] || 0}
-            />
-          ))}
-        </div>
+        {/* Active Questions */}
+        {activeQuestions.map((question) => (
+          <div key={question.id} style={styles.participantQuestionCard}>
+            {/* Question Header */}
+            <div style={styles.participantQuestionHeader}>
+              <span style={styles.participantQuestionNumber}>Vraag {question.id}</span>
+              <h2 style={styles.participantQuestionTitle}>{question.question}</h2>
+            </div>
+
+            {/* Answer Options */}
+            <div style={styles.participantButtonsGrid}>
+              {question.buttons.map((button) => (
+                <button
+                  key={button.id}
+                  onClick={() => onButtonClick(question.id, button.id)}
+                  style={{
+                    ...styles.participantButton,
+                    backgroundColor: button.color,
+                  }}
+                >
+                  <div style={styles.participantButtonContent}>
+                    <span style={styles.participantButtonNumber}>{button.id}</span>
+                    <span style={styles.participantButtonLabel}>{button.label}</span>
+                  </div>
+                  <Check size={24} style={{ opacity: 0.8 }} />
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        {/* Closed Questions Preview */}
+        {questions.filter(q => !q.active).length > 0 && (
+          <div style={styles.closedQuestionsSection}>
+            <h3 style={styles.closedQuestionsTitle}>
+              <Lock size={18} />
+              Gesloten vragen
+            </h3>
+            <div style={styles.closedQuestionsList}>
+              {questions.filter(q => !q.active).map((question) => (
+                <div key={question.id} style={styles.closedQuestionItem}>
+                  <span style={styles.closedQuestionNumber}>Vraag {question.id}</span>
+                  <span style={styles.closedQuestionText}>{question.question}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ import { ParticipantView } from './ParticipantView';
 import { generateCode, useSessionStorage } from './utils';
 
 // ============================================
-// MAIN APP COMPONENT - MULTI QUESTION SYSTEM
+// MAIN APP - LIVE RESULTS SYSTEM
 // ============================================
 
 const InteractivePresentationApp = () => {
@@ -17,47 +17,46 @@ const InteractivePresentationApp = () => {
     {
       id: 1,
       question: 'Blijf je leiding?',
+      active: false, // Is deze vraag open voor antwoorden?
       buttons: [
-        { id: 1, label: 'Ja, blijf leiding', unlocked: false, color: '#10b981' },
-        { id: 2, label: 'Nee, stop ermee', unlocked: false, color: '#ef4444' },
-        { id: 3, label: 'Misschien/Twijfel', unlocked: false, color: '#f59e0b' },
+        { id: 1, label: 'Ja, blijf leiding', color: '#10b981' },
+        { id: 2, label: 'Nee, stop ermee', color: '#ef4444' },
+        { id: 3, label: 'Misschien/Twijfel', color: '#f59e0b' },
       ]
     },
     {
       id: 2,
       question: 'Welk kamp verkies je?',
+      active: false,
       buttons: [
-        { id: 1, label: 'Zomerkamp', unlocked: false, color: '#f59e0b' },
-        { id: 2, label: 'Winterkamp', unlocked: false, color: '#3b82f6' },
-        { id: 3, label: 'Beide', unlocked: false, color: '#8b5cf6' },
-        { id: 4, label: 'Geen van beide', unlocked: false, color: '#6b7280' },
+        { id: 1, label: 'Zomerkamp', color: '#f59e0b' },
+        { id: 2, label: 'Winterkamp', color: '#3b82f6' },
+        { id: 3, label: 'Beide', color: '#8b5cf6' },
+        { id: 4, label: 'Geen van beide', color: '#6b7280' },
       ]
     },
     {
       id: 3,
       question: 'Hoeveel jaar ben je al leiding?',
+      active: false,
       buttons: [
-        { id: 1, label: '0-2 jaar', unlocked: false, color: '#10b981' },
-        { id: 2, label: '3-5 jaar', unlocked: false, color: '#3b82f6' },
-        { id: 3, label: '6-10 jaar', unlocked: false, color: '#f59e0b' },
-        { id: 4, label: '10+ jaar', unlocked: false, color: '#ef4444' },
+        { id: 1, label: '0-2 jaar', color: '#10b981' },
+        { id: 2, label: '3-5 jaar', color: '#3b82f6' },
+        { id: 3, label: '6-10 jaar', color: '#f59e0b' },
+        { id: 4, label: '10+ jaar', color: '#ef4444' },
       ]
     },
   ]);
   
-  const [activeQuestionId, setActiveQuestionId] = useState(1); // Welke vraag is actief
-  const [clickCounts, setClickCounts] = useState({});
+  const [results, setResults] = useState({}); // Live resultaten per vraag/button
 
   const { saveSession, loadSession } = useSessionStorage();
-
-  // Haal de actieve vraag op
-  const activeQuestion = questions.find(q => q.id === activeQuestionId);
 
   const startAsHost = async () => {
     const code = generateCode();
     setSessionCode(code);
     setMode('host');
-    await saveSession(code, { questions, activeQuestionId });
+    await saveSession(code, { questions, results });
   };
 
   const joinAsParticipant = async (code) => {
@@ -67,56 +66,61 @@ const InteractivePresentationApp = () => {
       const data = await loadSession(code);
       if (data) {
         setQuestions(data.questions);
-        setActiveQuestionId(data.activeQuestionId);
+        setResults(data.results || {});
       }
     }
   };
 
-  // Host selecteert welke vraag actief is
-  const selectQuestion = async (questionId) => {
-    setActiveQuestionId(questionId);
-    await saveSession(sessionCode, { questions, activeQuestionId: questionId });
+  // Toggle vraag actief/inactief
+  const toggleQuestion = async (questionId) => {
+    const updatedQuestions = questions.map((q) =>
+      q.id === questionId ? { ...q, active: !q.active } : q
+    );
+    setQuestions(updatedQuestions);
+    await saveSession(sessionCode, { questions: updatedQuestions, results });
   };
 
-  // Toggle button lock voor de ACTIEVE vraag
-  const toggleButton = async (buttonId) => {
-    const updatedQuestions = questions.map((q) => {
-      if (q.id === activeQuestionId) {
-        return {
-          ...q,
-          buttons: q.buttons.map((btn) =>
-            btn.id === buttonId ? { ...btn, unlocked: !btn.unlocked } : btn
-          )
-        };
-      }
-      return q;
+  // Handle button click (participant) - update results
+  const handleButtonClick = async (questionId, buttonId) => {
+    const question = questions.find(q => q.id === questionId);
+    if (!question || !question.active) return;
+
+    const key = `${questionId}-${buttonId}`;
+    const newResults = {
+      ...results,
+      [key]: (results[key] || 0) + 1,
+    };
+    
+    setResults(newResults);
+    
+    // Save to storage for host to see
+    await saveSession(sessionCode, { questions, results: newResults });
+  };
+
+  // Reset results voor een specifieke vraag
+  const resetQuestionResults = async (questionId) => {
+    const question = questions.find(q => q.id === questionId);
+    if (!question) return;
+
+    const newResults = { ...results };
+    question.buttons.forEach(btn => {
+      const key = `${questionId}-${btn.id}`;
+      delete newResults[key];
     });
     
-    setQuestions(updatedQuestions);
-    await saveSession(sessionCode, { questions: updatedQuestions, activeQuestionId });
+    setResults(newResults);
+    await saveSession(sessionCode, { questions, results: newResults });
   };
 
-  // Handle button click (participant)
-  const handleButtonClick = (buttonId) => {
-    const button = activeQuestion.buttons.find((b) => b.id === buttonId);
-    if (button && button.unlocked) {
-      const key = `${activeQuestionId}-${buttonId}`;
-      setClickCounts((prev) => ({
-        ...prev,
-        [key]: (prev[key] || 0) + 1,
-      }));
-    }
-  };
-
-  // Sync for participants
+  // Sync for participants AND host (voor live updates)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    if (mode === 'participant' && sessionCode) {
+    if (sessionCode && mode) {
       const interval = setInterval(async () => {
         const data = await loadSession(sessionCode);
         if (data) {
           setQuestions(data.questions);
-          setActiveQuestionId(data.activeQuestionId);
+          setResults(data.results || {});
         }
       }, 2000);
       return () => clearInterval(interval);
@@ -137,9 +141,9 @@ const InteractivePresentationApp = () => {
       <HostDashboard
         sessionCode={sessionCode}
         questions={questions}
-        activeQuestionId={activeQuestionId}
-        onSelectQuestion={selectQuestion}
-        onToggleButton={toggleButton}
+        results={results}
+        onToggleQuestion={toggleQuestion}
+        onResetResults={resetQuestionResults}
       />
     );
   }
@@ -147,9 +151,8 @@ const InteractivePresentationApp = () => {
   return (
     <ParticipantView
       sessionCode={sessionCode}
-      question={activeQuestion}
+      questions={questions}
       onButtonClick={handleButtonClick}
-      clickCounts={clickCounts}
     />
   );
 };
