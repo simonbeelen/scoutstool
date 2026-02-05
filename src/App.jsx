@@ -251,10 +251,11 @@ const InteractivePresentationApp = () => {
         setUserVotes((prev) => ({ ...prev, [questionId]: buttonId }));
       }
     } else if (type === 'ranking' && additionalData) {
-      // Ranking: additionalData is the sorted array
+      // Ranking: additionalData is the sorted array of items
+      // Store each item with its rank position
       additionalData.forEach((item, index) => {
-        const key = `rank-${index}`;
-        questionResponses[key] = [name];
+        const rankKey = `${item}__rank${index + 1}`;
+        questionResponses[rankKey] = [name];
       });
       setUserVotes((prev) => ({ ...prev, [questionId]: 'submitted' }));
     }

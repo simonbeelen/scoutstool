@@ -379,25 +379,48 @@ export const HostDashboard = ({
           });
         });
       }
-      // For ranking - just show the question and participant name (don't show rank indices)
+      // For ranking - show items in order with rank numbers
       else if (type === 'ranking') {
         // Get unique participant names who participated in this ranking
         const rankingParticipants = new Set();
+        const participantRankings = {};
+        
         Object.keys(buttonResponses).forEach((rankKey) => {
-          const names = buttonResponses[rankKey] || [];
-          names.forEach((name) => {
-            rankingParticipants.add(name);
-          });
+          // rankKey format: "itemName__rank1", "itemName__rank2", etc
+          const match = rankKey.match(/^(.+)__rank(\d+)$/);
+          if (match) {
+            const itemName = match[1];
+            const rankNum = match[2];
+            const names = buttonResponses[rankKey] || [];
+            
+            names.forEach((name) => {
+              rankingParticipants.add(name);
+              if (!participantRankings[name]) {
+                participantRankings[name] = {};
+              }
+              participantRankings[name][rankNum] = itemName;
+            });
+          }
         });
         
         rankingParticipants.forEach((name) => {
           if (!participants[name]) {
             participants[name] = [];
           }
+          
+          // Build ranking string like "1. item A, 2. item B, 3. item C"
+          const rankings = participantRankings[name];
+          const rankingItems = [];
+          const sortedRanks = Object.keys(rankings).sort((a, b) => parseInt(a) - parseInt(b));
+          
+          sortedRanks.forEach((rank) => {
+            rankingItems.push(`${rank}. ${rankings[rank]}`);
+          });
+          
           participants[name].push({
             questionId: questionIdNum,
             questionText: question.question,
-            answerLabel: 'Rangschikking voltooid',
+            answerLabel: rankingItems.join(', '),
           });
         });
       }
