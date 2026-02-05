@@ -125,18 +125,25 @@ const InteractivePresentationApp = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (sessionCode && mode) {
+      console.log(`🔄 Starting sync for ${mode} with code: ${sessionCode}`);
+      
       const interval = setInterval(async () => {
         try {
           const data = await loadSession(sessionCode);
           if (data && data.questions && Array.isArray(data.questions)) {
+            console.log('📥 Synced - Active questions:', data.questions.filter(q => q.active).length);
             setQuestions(data.questions);
             setResults(data.results || {});
           }
         } catch (error) {
-          console.error('Error syncing:', error);
+          console.error('❌ Error syncing:', error);
         }
-      }, 2000);
-      return () => clearInterval(interval);
+      }, 1000); // Snellere sync: elke 1 seconde
+      
+      return () => {
+        console.log('🛑 Stopping sync');
+        clearInterval(interval);
+      };
     }
   }, [mode, sessionCode]);
 

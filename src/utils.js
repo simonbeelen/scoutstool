@@ -12,25 +12,33 @@ export const generateCode = () => {
 };
 
 export const useSessionStorage = () => {
-  const saveSession = async (code, buttonState) => {
+  const saveSession = async (code, data) => {
     try {
-      const data = { buttons: buttonState, timestamp: Date.now() };
-      // Gebruik localStorage in plaats van window.storage
-      localStorage.setItem(`session:${code}`, JSON.stringify(data));
+      // Gebruik localStorage (werkt in alle browsers)
+      const sessionData = {
+        questions: data.questions,
+        results: data.results,
+        timestamp: Date.now()
+      };
+      localStorage.setItem(`session:${code}`, JSON.stringify(sessionData));
+      console.log('Session saved:', code, sessionData);
     } catch (error) {
-      console.error('Error saving:', error);
+      console.error('Error saving session:', error);
     }
   };
 
   const loadSession = async (code) => {
     try {
-      // Gebruik localStorage in plaats van window.storage
-      const result = localStorage.getItem(`session:${code}`);
-      if (result) {
-        return JSON.parse(result);
+      // Laad van localStorage
+      const stored = localStorage.getItem(`session:${code}`);
+      if (stored) {
+        const data = JSON.parse(stored);
+        console.log('Session loaded:', code, data);
+        return data;
       }
+      console.log('No session found for:', code);
     } catch (error) {
-      console.error('Error loading:', error);
+      console.error('Error loading session:', error);
     }
     return null;
   };
