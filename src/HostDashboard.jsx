@@ -338,24 +338,63 @@ export const HostDashboard = ({
       const question = questions.find(q => q.id === questionIdNum);
       if (!question) return;
       
+      const type = question.type || 'multipleChoice';
       const buttonResponses = responses[questionId];
-      Object.keys(buttonResponses).forEach((buttonId) => {
-        const buttonIdNum = parseInt(buttonId);
-        const button = question.buttons.find(b => b.id === buttonIdNum);
-        if (!button) return;
+      
+      // For multipleChoice and trueFalse - look up button labels
+      if (type === 'multipleChoice' || type === 'trueFalse') {
+        if (!question.buttons) return; // Safety check
         
-        const names = buttonResponses[buttonId] || [];
-        names.forEach((name) => {
-          if (!participants[name]) {
-            participants[name] = [];
-          }
-          participants[name].push({
-            questionId: questionIdNum,
-            questionText: question.question,
-            answerLabel: button.label,
+        Object.keys(buttonResponses).forEach((buttonId) => {
+          const buttonIdNum = parseInt(buttonId);
+          const button = question.buttons.find(b => b.id === buttonIdNum);
+          if (!button) return;
+          
+          const names = buttonResponses[buttonId] || [];
+          names.forEach((name) => {
+            if (!participants[name]) {
+              participants[name] = [];
+            }
+            participants[name].push({
+              questionId: questionIdNum,
+              questionText: question.question,
+              answerLabel: button.label,
+            });
           });
         });
-      });
+      } 
+      // For dragDrop - answerLabel is the item name
+      else if (type === 'dragDrop') {
+        Object.keys(buttonResponses).forEach((itemName) => {
+          const names = buttonResponses[itemName] || [];
+          names.forEach((name) => {
+            if (!participants[name]) {
+              participants[name] = [];
+            }
+            participants[name].push({
+              questionId: questionIdNum,
+              questionText: question.question,
+              answerLabel: itemName,
+            });
+          });
+        });
+      }
+      // For ranking - show the ranking order
+      else if (type === 'ranking') {
+        Object.keys(buttonResponses).forEach((rankKey) => {
+          const names = buttonResponses[rankKey] || [];
+          names.forEach((name) => {
+            if (!participants[name]) {
+              participants[name] = [];
+            }
+            participants[name].push({
+              questionId: questionIdNum,
+              questionText: question.question,
+              answerLabel: `Ranking: ${rankKey}`,
+            });
+          });
+        });
+      }
     });
     
     return participants;
