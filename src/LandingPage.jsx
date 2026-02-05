@@ -31,8 +31,8 @@ export const LandingPage = ({ onStartHost, onJoinSession }) => {
           alt="Scouts Juventa Merchtem"
           style={{ maxWidth: '200px', marginBottom: '20px' }}
         />
-        <h1 style={styles.title}>InteractQ</h1>
-        <p style={styles.subtitle}>Interactieve presentatie tool</p>
+        <h1 style={styles.title}>Halfjaarlijske</h1>
+        <p style={styles.subtitle}>Scouts Juventa Merchtem</p>
 
         <div style={styles.buttonGrid}>
           <div style={styles.card}>
