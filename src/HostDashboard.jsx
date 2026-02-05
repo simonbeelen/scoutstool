@@ -119,10 +119,16 @@ export const HostDashboard = ({
   questions = [], 
   results = {},
   onToggleQuestion,
-  onResetResults 
+  onResetResults,
+  onAddQuestion,
+  onSetAllQuestionsActive 
 }) => {
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
+  const [newQuestionText, setNewQuestionText] = useState('');
+  const [newOptions, setNewOptions] = useState(['', '', '', '']);
+  const [formTouched, setFormTouched] = useState(false);
+  const [openOnAdd, setOpenOnAdd] = useState(true);
 
   const copyCode = () => {
     navigator.clipboard.writeText(sessionCode);
@@ -135,6 +141,29 @@ export const HostDashboard = ({
 
   // Totaal aantal stemmen over alle vragen (safe)
   const totalAllVotes = results ? Object.values(results).reduce((sum, count) => sum + count, 0) : 0;
+  const anyActive = questions.some((q) => q && q.active);
+  const anyClosed = questions.some((q) => q && !q.active);
+
+  const handleOptionChange = (index, value) => {
+    setNewOptions((prev) => prev.map((opt, i) => (i === index ? value : opt)));
+  };
+
+  const canAddQuestion = () => {
+    const hasQuestion = newQuestionText.trim().length > 0;
+    const validOptions = newOptions.filter((opt) => opt.trim().length > 0);
+    return hasQuestion && validOptions.length >= 2;
+  };
+
+  const handleAddQuestion = () => {
+    setFormTouched(true);
+    if (!canAddQuestion()) return;
+    if (onAddQuestion) {
+      onAddQuestion(newQuestionText, newOptions, openOnAdd);
+    }
+    setNewQuestionText('');
+    setNewOptions(['', '', '', '']);
+    setFormTouched(false);
+  };
 
   return (
     <div style={styles.container}>
@@ -146,6 +175,30 @@ export const HostDashboard = ({
             <p style={styles.hostSubtitle}>Beheer vragen en bekijk antwoorden live</p>
           </div>
           <div style={styles.hostHeaderRight}>
+            <div style={styles.bulkActions}>
+              <button
+                onClick={() => onSetAllQuestionsActive && onSetAllQuestionsActive(true)}
+                style={{
+                  ...styles.bulkActionButton,
+                  backgroundColor: '#10b981',
+                  opacity: anyClosed ? 1 : 0.6,
+                }}
+                disabled={!anyClosed}
+              >
+                Open alle vragen
+              </button>
+              <button
+                onClick={() => onSetAllQuestionsActive && onSetAllQuestionsActive(false)}
+                style={{
+                  ...styles.bulkActionButton,
+                  backgroundColor: '#ef4444',
+                  opacity: anyActive ? 1 : 0.6,
+                }}
+                disabled={!anyActive}
+              >
+                Sluit alle vragen
+              </button>
+            </div>
             <div style={styles.statsBox}>
               <span style={styles.statsLabel}>Totaal stemmen</span>
               <span style={styles.statsNumber}>{totalAllVotes}</span>
@@ -167,6 +220,58 @@ export const HostDashboard = ({
 
         {/* Questions with Results */}
         <div style={styles.questionsContainer}>
+          {/* New Question Form */}
+          <div style={styles.newQuestionCard}>
+            <div style={styles.newQuestionHeader}>
+              <h2 style={styles.newQuestionTitle}>Nieuwe vraag opstellen</h2>
+              <p style={styles.newQuestionSubtitle}>Vul minstens 2 antwoordopties in</p>
+            </div>
+            <div style={styles.formRow}>
+              <label style={styles.formLabel}>Vraag</label>
+              <input
+                type="text"
+                value={newQuestionText}
+                onChange={(e) => setNewQuestionText(e.target.value)}
+                placeholder="Bijv. Wat vond je van de presentatie?"
+                style={styles.textInput}
+              />
+            </div>
+            <div style={styles.formRow}>
+              <label style={styles.formLabel}>Antwoordopties</label>
+              <div style={styles.optionsGrid}>
+                {newOptions.map((option, index) => (
+                  <input
+                    key={`option-${index}`}
+                    type="text"
+                    value={option}
+                    onChange={(e) => handleOptionChange(index, e.target.value)}
+                    placeholder={`Optie ${index + 1}`}
+                    style={styles.smallInput}
+                  />
+                ))}
+              </div>
+              {formTouched && !canAddQuestion() && (
+                <span style={styles.helperText}>Voer een vraag en minstens 2 opties in.</span>
+              )}
+            </div>
+            <label style={styles.checkboxRow}>
+              <input
+                type="checkbox"
+                checked={openOnAdd}
+                onChange={(e) => setOpenOnAdd(e.target.checked)}
+              />
+              <span>Open vraag meteen voor deelnemers</span>
+            </label>
+            <button
+              onClick={handleAddQuestion}
+              style={{
+                ...styles.addButton,
+                opacity: canAddQuestion() ? 1 : 0.6,
+              }}
+            >
+              Vraag toevoegen
+            </button>
+          </div>
           {questions.map((question) => (
             <QuestionCard
               key={question.id}

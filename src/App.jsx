@@ -11,6 +11,7 @@ import { generateCode, useSessionStorage } from './utils';
 const InteractivePresentationApp = () => {
   const [mode, setMode] = useState(null);
   const [sessionCode, setSessionCode] = useState('');
+  const optionColors = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#6b7280'];
   
   // ALLE VRAGEN MET HUN OPTIES
   const [questions, setQuestions] = useState([
@@ -82,6 +83,49 @@ const InteractivePresentationApp = () => {
       await saveSession(sessionCode, { questions: updatedQuestions, results });
     } catch (error) {
       console.error('Error toggling question:', error);
+    }
+  };
+
+  // Open/sluit alle bestaande vragen
+  const setAllQuestionsActive = async (active) => {
+    try {
+      const updatedQuestions = questions.map((q) => ({ ...q, active }));
+      setQuestions(updatedQuestions);
+      await saveSession(sessionCode, { questions: updatedQuestions, results });
+    } catch (error) {
+      console.error('Error toggling all questions:', error);
+    }
+  };
+
+  // Add new question (host)
+  const addQuestion = async (questionText, optionLabels, openImmediately = true) => {
+    try {
+      const trimmedQuestion = (questionText || '').trim();
+      const cleanOptions = (optionLabels || [])
+        .map((label) => (label || '').trim())
+        .filter((label) => label.length > 0);
+
+      if (!trimmedQuestion || cleanOptions.length < 2) {
+        return;
+      }
+
+      const nextId = questions.length > 0 ? Math.max(...questions.map((q) => q.id)) + 1 : 1;
+      const newQuestion = {
+        id: nextId,
+        question: trimmedQuestion,
+        active: !!openImmediately,
+        buttons: cleanOptions.map((label, index) => ({
+          id: index + 1,
+          label,
+          color: optionColors[index % optionColors.length],
+        })),
+      };
+
+      const updatedQuestions = [...questions, newQuestion];
+      setQuestions(updatedQuestions);
+      await saveSession(sessionCode, { questions: updatedQuestions, results });
+    } catch (error) {
+      console.error('Error adding question:', error);
     }
   };
 
@@ -164,6 +208,8 @@ const InteractivePresentationApp = () => {
         results={results}
         onToggleQuestion={toggleQuestion}
         onResetResults={resetQuestionResults}
+        onAddQuestion={addQuestion}
+        onSetAllQuestionsActive={setAllQuestionsActive}
       />
     );
   }
