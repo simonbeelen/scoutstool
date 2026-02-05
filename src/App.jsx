@@ -20,6 +20,7 @@ const InteractivePresentationApp = () => {
       id: 1,
       question: 'Blijf je leiding?',
       active: false, // Is deze vraag open voor antwoorden?
+      showVoters: false,
       buttons: [
         { id: 1, label: 'Ja, blijf leiding', color: '#10b981' },
         { id: 2, label: 'Nee, stop ermee', color: '#ef4444' },
@@ -30,6 +31,7 @@ const InteractivePresentationApp = () => {
       id: 2,
       question: 'Welk kamp verkies je?',
       active: false,
+      showVoters: false,
       buttons: [
         { id: 1, label: 'Zomerkamp', color: '#f59e0b' },
         { id: 2, label: 'Winterkamp', color: '#3b82f6' },
@@ -41,6 +43,7 @@ const InteractivePresentationApp = () => {
       id: 3,
       question: 'Hoeveel jaar ben je al leiding?',
       active: false,
+      showVoters: false,
       buttons: [
         { id: 1, label: '0-2 jaar', color: '#10b981' },
         { id: 2, label: '3-5 jaar', color: '#3b82f6' },
@@ -102,6 +105,19 @@ const InteractivePresentationApp = () => {
     }
   };
 
+  // Toon/verberg namen per vraag
+  const toggleShowVoters = async (questionId) => {
+    try {
+      const updatedQuestions = questions.map((q) =>
+        q.id === questionId ? { ...q, showVoters: !q.showVoters } : q
+      );
+      setQuestions(updatedQuestions);
+      await saveSession(sessionCode, { questions: updatedQuestions, results, responses });
+    } catch (error) {
+      console.error('Error toggling voters visibility:', error);
+    }
+  };
+
   // Add new question (host)
   const addQuestion = async (questionText, optionLabels, openImmediately = true) => {
     try {
@@ -119,6 +135,7 @@ const InteractivePresentationApp = () => {
         id: nextId,
         question: trimmedQuestion,
         active: !!openImmediately,
+        showVoters: false,
         buttons: cleanOptions.map((label, index) => ({
           id: index + 1,
           label,
@@ -272,6 +289,7 @@ const InteractivePresentationApp = () => {
         onResetResults={resetQuestionResults}
         onAddQuestion={addQuestion}
         onSetAllQuestionsActive={setAllQuestionsActive}
+        onToggleShowVoters={toggleShowVoters}
       />
     );
   }

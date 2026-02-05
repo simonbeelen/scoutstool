@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Lock, Unlock, Copy, Check, QrCode, X, RotateCcw, BarChart3 } from 'lucide-react';
+import { Lock, Unlock, Copy, Check, QrCode, X, RotateCcw, BarChart3, Users } from 'lucide-react';
 import { styles } from './styles';
 
 // ============================================
 // QUESTION CARD WITH RESULTS
 // ============================================
 
-export const QuestionCard = ({ question, results, responses, onToggle, onReset }) => {
+export const QuestionCard = ({ question, results, responses, onToggle, onReset, onToggleShowVoters }) => {
   // Safety check
   if (!question || !question.buttons) return null;
   if (!results) results = {};
@@ -27,6 +27,18 @@ export const QuestionCard = ({ question, results, responses, onToggle, onReset }
           <h3 style={styles.questionCardTitle}>{question.question}</h3>
         </div>
         <div style={styles.questionCardActions}>
+          <button
+            onClick={() => onToggleShowVoters(question.id)}
+            style={{
+              ...styles.showVotersButton,
+              backgroundColor: question.showVoters ? '#2563eb' : '#e5e7eb',
+              color: question.showVoters ? 'white' : '#374151',
+            }}
+            title="Toon/verberg namen"
+          >
+            <Users size={16} />
+            <span>{question.showVoters ? 'Namen aan' : 'Namen uit'}</span>
+          </button>
           <button
             onClick={() => onToggle(question.id)}
             style={{
@@ -95,7 +107,7 @@ export const QuestionCard = ({ question, results, responses, onToggle, onReset }
                     }}
                   />
                 </div>
-                {names.length > 0 && (
+                {question.showVoters && names.length > 0 && (
                   <div style={styles.resultVoters}>
                     {names.map((name, index) => (
                       <span key={`${button.id}-${index}`} style={styles.voterTag}>
@@ -133,7 +145,8 @@ export const HostDashboard = ({
   onToggleQuestion,
   onResetResults,
   onAddQuestion,
-  onSetAllQuestionsActive 
+  onSetAllQuestionsActive,
+  onToggleShowVoters 
 }) => {
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
@@ -292,6 +305,7 @@ export const HostDashboard = ({
               responses={responses}
               onToggle={onToggleQuestion}
               onReset={onResetResults}
+              onToggleShowVoters={onToggleShowVoters}
             />
           ))}
         </div>
