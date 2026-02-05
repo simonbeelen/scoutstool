@@ -193,21 +193,33 @@ export const HostDashboard = ({
 
   const buildParticipantSummary = () => {
     const participants = {};
-    questions.forEach((question) => {
-      question.buttons.forEach((button) => {
-        const names = (responses[question.id] && responses[question.id][button.id]) || [];
+    
+    // Iterate through responses object directly
+    Object.keys(responses).forEach((questionId) => {
+      const questionIdNum = parseInt(questionId);
+      const question = questions.find(q => q.id === questionIdNum);
+      if (!question) return;
+      
+      const buttonResponses = responses[questionId];
+      Object.keys(buttonResponses).forEach((buttonId) => {
+        const buttonIdNum = parseInt(buttonId);
+        const button = question.buttons.find(b => b.id === buttonIdNum);
+        if (!button) return;
+        
+        const names = buttonResponses[buttonId] || [];
         names.forEach((name) => {
           if (!participants[name]) {
             participants[name] = [];
           }
           participants[name].push({
-            questionId: question.id,
+            questionId: questionIdNum,
             questionText: question.question,
             answerLabel: button.label,
           });
         });
       });
     });
+    
     return participants;
   };
 
