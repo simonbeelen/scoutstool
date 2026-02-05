@@ -60,10 +60,34 @@ const InteractivePresentationApp = () => {
 
   const { saveSession, loadSession, subscribeSession } = useSessionStorage();
 
+  // Restore session on app load
+  useEffect(() => {
+    const savedCode = localStorage.getItem('scoutstool_sessionCode');
+    const savedMode = localStorage.getItem('scoutstool_mode');
+    
+    if (savedCode && savedMode) {
+      setSessionCode(savedCode);
+      setMode(savedMode);
+      
+      // Load data from that session
+      if (savedMode === 'host') {
+        loadSession(savedCode).then(data => {
+          if (data) {
+            setQuestions(data.questions || []);
+            setResults(data.results || {});
+            setResponses(data.responses || {});
+          }
+        });
+      }
+    }
+  }, []);
+
   const startAsHost = async () => {
     const code = generateCode();
     setSessionCode(code);
     setMode('host');
+    localStorage.setItem('scoutstool_sessionCode', code);
+    localStorage.setItem('scoutstool_mode', 'host');
     await saveSession(code, { questions, results, responses });
   };
 
@@ -71,6 +95,8 @@ const InteractivePresentationApp = () => {
     if (code.length === 6) {
       setSessionCode(code);
       setMode('participant');
+      localStorage.setItem('scoutstool_sessionCode', code);
+      localStorage.setItem('scoutstool_mode', 'participant');
       const data = await loadSession(code);
       if (data) {
         setQuestions(data.questions);
@@ -78,6 +104,16 @@ const InteractivePresentationApp = () => {
         setResponses(data.responses || {});
       }
     }
+  };
+
+  // Logout - go back to landing page
+  const logout = () => {
+    localStorage.removeItem('scoutstool_sessionCode');
+    localStorage.removeItem('scoutstool_mode');
+    setMode(null);
+    setSessionCode('');
+    setParticipantName('');
+    setUserVotes({});
   };
 
   // Toggle vraag actief/inactief
@@ -358,6 +394,7 @@ const InteractivePresentationApp = () => {
         onAddQuestion={addQuestion}
         onSetAllQuestionsActive={setAllQuestionsActive}
         onToggleShowVoters={toggleShowVoters}
+        onLogout={logout}
       />
     );
   }
@@ -379,6 +416,7 @@ const InteractivePresentationApp = () => {
       questions={questions}
       onButtonClick={handleButtonClick}
       userVotes={userVotes}
+      onLogout={logout}
     />
   );
 };

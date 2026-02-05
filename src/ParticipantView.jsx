@@ -6,7 +6,7 @@ import { styles } from './styles';
 // PARTICIPANT VIEW - ALL QUESTION TYPES
 // ============================================
 
-export const ParticipantView = ({ sessionCode, participantName = '', questions = [], onButtonClick, userVotes = {} }) => {
+export const ParticipantView = ({ sessionCode, participantName = '', questions = [], onButtonClick, userVotes = {}, onLogout }) => {
   // Safety check
   if (!Array.isArray(questions)) {
     questions = [];
@@ -49,16 +49,38 @@ export const ParticipantView = ({ sessionCode, participantName = '', questions =
       <div style={styles.participantContent}>
         {/* Header */}
         <div style={styles.participantHeaderSection}>
-          <div style={styles.sessionBadgeParticipant}>
-            <div style={styles.statusDotParticipant}></div>
-            <span>Sessie: {sessionCode} • {participantName}</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            <div>
+              <div style={styles.sessionBadgeParticipant}>
+                <div style={styles.statusDotParticipant}></div>
+                <span>Sessie: {sessionCode} • {participantName}</span>
+              </div>
+              <h1 style={styles.participantMainTitle}>Beantwoord de vragen</h1>
+              {activeQuestions.length === 0 && (
+                <p style={styles.waitingText}>
+                  Wachten op vragen van de presentator...
+                </p>
+              )}
+            </div>
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                style={{
+                  padding: '10px 16px',
+                  backgroundColor: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  height: 'fit-content',
+                }}
+              >
+                Terug
+              </button>
+            )}
           </div>
-          <h1 style={styles.participantMainTitle}>Beantwoord de vragen</h1>
-          {activeQuestions.length === 0 && (
-            <p style={styles.waitingText}>
-              Wachten op vragen van de presentator...
-            </p>
-          )}
         </div>
 
         {/* Active Questions */}

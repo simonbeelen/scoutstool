@@ -246,7 +246,8 @@ export const HostDashboard = ({
   onResetResults,
   onAddQuestion,
   onSetAllQuestionsActive,
-  onToggleShowVoters 
+  onToggleShowVoters,
+  onLogout,
 }) => {
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
@@ -439,6 +440,24 @@ export const HostDashboard = ({
             <p style={styles.hostSubtitle}>Beheer vragen en bekijk antwoorden live</p>
           </div>
           <div style={styles.hostHeaderRight}>
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                style={{
+                  padding: '10px 16px',
+                  backgroundColor: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  marginRight: '12px',
+                }}
+              >
+                Terug
+              </button>
+            )}
             <div style={styles.bulkActions}>
               <button
                 onClick={() => onSetAllQuestionsActive && onSetAllQuestionsActive(true)}
