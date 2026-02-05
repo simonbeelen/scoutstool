@@ -9,6 +9,11 @@ export const styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: '#f5f5f5',
+    backgroundImage: 'url(https://www.scoutsjuventamerchtem.be/assets/img/logo.png)',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    backgroundAttachment: 'fixed',
     padding: '20px',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   },
