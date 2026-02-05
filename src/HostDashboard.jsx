@@ -6,10 +6,11 @@ import { styles } from './styles';
 // QUESTION CARD WITH RESULTS
 // ============================================
 
-export const QuestionCard = ({ question, results, onToggle, onReset }) => {
+export const QuestionCard = ({ question, results, responses, onToggle, onReset }) => {
   // Safety check
   if (!question || !question.buttons) return null;
   if (!results) results = {};
+  if (!responses) responses = {};
   
   // Bereken totaal aantal stemmen voor deze vraag
   const totalVotes = question.buttons.reduce((sum, btn) => {
@@ -69,6 +70,7 @@ export const QuestionCard = ({ question, results, onToggle, onReset }) => {
             const key = `${question.id}-${button.id}`;
             const votes = results[key] || 0;
             const percentage = totalVotes > 0 ? Math.round((votes / totalVotes) * 100) : 0;
+            const names = (responses[question.id] && responses[question.id][button.id]) || [];
 
             return (
               <div key={button.id} style={styles.resultItem}>
@@ -93,6 +95,15 @@ export const QuestionCard = ({ question, results, onToggle, onReset }) => {
                     }}
                   />
                 </div>
+                {names.length > 0 && (
+                  <div style={styles.resultVoters}>
+                    {names.map((name, index) => (
+                      <span key={`${button.id}-${index}`} style={styles.voterTag}>
+                        {name}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             );
           })}
@@ -118,6 +129,7 @@ export const HostDashboard = ({
   sessionCode, 
   questions = [], 
   results = {},
+  responses = {},
   onToggleQuestion,
   onResetResults,
   onAddQuestion,
@@ -277,6 +289,7 @@ export const HostDashboard = ({
               key={question.id}
               question={question}
               results={results}
+              responses={responses}
               onToggle={onToggleQuestion}
               onReset={onResetResults}
             />

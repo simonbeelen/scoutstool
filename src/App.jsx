@@ -51,6 +51,7 @@ const InteractivePresentationApp = () => {
   ]);
   
   const [results, setResults] = useState({}); // Live resultaten per vraag/button
+  const [responses, setResponses] = useState({}); // Namen per vraag/antwoord
   const [userVotes, setUserVotes] = useState({}); // Track deelnemer's votes: { questionId: buttonId }
   const [participantName, setParticipantName] = useState(''); // Deelnemers naam
 
@@ -60,7 +61,7 @@ const InteractivePresentationApp = () => {
     const code = generateCode();
     setSessionCode(code);
     setMode('host');
-    await saveSession(code, { questions, results });
+    await saveSession(code, { questions, results, responses });
   };
 
   const joinAsParticipant = async (code) => {
@@ -71,6 +72,7 @@ const InteractivePresentationApp = () => {
       if (data) {
         setQuestions(data.questions);
         setResults(data.results || {});
+        setResponses(data.responses || {});
       }
     }
   };
@@ -83,7 +85,7 @@ const InteractivePresentationApp = () => {
       );
       console.log('Toggling question:', questionId, 'New state:', updatedQuestions);
       setQuestions(updatedQuestions);
-      await saveSession(sessionCode, { questions: updatedQuestions, results });
+      await saveSession(sessionCode, { questions: updatedQuestions, results, responses });
     } catch (error) {
       console.error('Error toggling question:', error);
     }
@@ -94,7 +96,7 @@ const InteractivePresentationApp = () => {
     try {
       const updatedQuestions = questions.map((q) => ({ ...q, active }));
       setQuestions(updatedQuestions);
-      await saveSession(sessionCode, { questions: updatedQuestions, results });
+      await saveSession(sessionCode, { questions: updatedQuestions, results, responses });
     } catch (error) {
       console.error('Error toggling all questions:', error);
     }
@@ -126,7 +128,7 @@ const InteractivePresentationApp = () => {
 
       const updatedQuestions = [...questions, newQuestion];
       setQuestions(updatedQuestions);
-      await saveSession(sessionCode, { questions: updatedQuestions, results });
+      await saveSession(sessionCode, { questions: updatedQuestions, results, responses });
     } catch (error) {
       console.error('Error adding question:', error);
     }
@@ -137,13 +139,23 @@ const InteractivePresentationApp = () => {
     const question = questions.find(q => q.id === questionId);
     if (!question || !question.active) return;
 
+    const name = participantName.trim();
+    if (!name) return;
+
     const hasVoted = userVotes[questionId];
     const newResults = { ...results };
+    const questionResponses = { ...(responses[questionId] || {}) };
 
     // Als je al hebt gestemd en je klikt op dezelfde knop → stem verwijderen
     if (hasVoted === buttonId) {
       const key = `${questionId}-${buttonId}`;
       newResults[key] = Math.max(0, (newResults[key] || 1) - 1);
+      const updatedNames = (questionResponses[buttonId] || []).filter((n) => n !== name);
+      if (updatedNames.length > 0) {
+        questionResponses[buttonId] = updatedNames;
+      } else {
+        delete questionResponses[buttonId];
+      }
       setUserVotes((prev) => {
         const updated = { ...prev };
         delete updated[questionId];
@@ -156,11 +168,21 @@ const InteractivePresentationApp = () => {
       // Je hebt nog niet gestemd → stem toevoegen
       const key = `${questionId}-${buttonId}`;
       newResults[key] = (newResults[key] || 0) + 1;
+      const existingNames = questionResponses[buttonId] || [];
+      if (!existingNames.includes(name)) {
+        questionResponses[buttonId] = [...existingNames, name];
+      }
       setUserVotes((prev) => ({ ...prev, [questionId]: buttonId }));
     }
 
+    const updatedResponses = { ...responses, [questionId]: questionResponses };
+    if (Object.keys(questionResponses).length === 0) {
+      delete updatedResponses[questionId];
+    }
+
+    setResponses(updatedResponses);
     setResults(newResults);
-    await saveSession(sessionCode, { questions, results: newResults });
+    await saveSession(sessionCode, { questions, results: newResults, responses: updatedResponses });
   };
 
   // Reset results voor een specifieke vraag
@@ -174,9 +196,12 @@ const InteractivePresentationApp = () => {
         const key = `${questionId}-${btn.id}`;
         delete newResults[key];
       });
+      const newResponses = { ...responses };
+      delete newResponses[questionId];
       
       setResults(newResults);
-      await saveSession(sessionCode, { questions, results: newResults });
+      setResponses(newResponses);
+      await saveSession(sessionCode, { questions, results: newResults, responses: newResponses });
     } catch (error) {
       console.error('Error resetting results:', error);
     }
@@ -194,6 +219,7 @@ const InteractivePresentationApp = () => {
               console.log('📥 Synced (realtime) - Active questions:', data.questions.filter(q => q.active).length);
               setQuestions(data.questions);
               setResults(data.results || {});
+              setResponses(data.responses || {});
             }
           })
         : null;
@@ -212,6 +238,7 @@ const InteractivePresentationApp = () => {
             console.log('📥 Synced - Active questions:', data.questions.filter(q => q.active).length);
             setQuestions(data.questions);
             setResults(data.results || {});
+            setResponses(data.responses || {});
           }
         } catch (error) {
           console.error('❌ Error syncing:', error);
@@ -240,6 +267,7 @@ const InteractivePresentationApp = () => {
         sessionCode={sessionCode}
         questions={questions}
         results={results}
+        responses={responses}
         onToggleQuestion={toggleQuestion}
         onResetResults={resetQuestionResults}
         onAddQuestion={addQuestion}

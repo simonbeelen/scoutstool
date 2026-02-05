@@ -503,6 +503,32 @@ export const styles = {
     transition: 'width 0.3s ease',
     borderRadius: '4px',
   },
+  resultVoters: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '6px',
+    marginTop: '10px',
+  },
+  voterTag: {
+    fontSize: '12px',
+    color: '#111827',
+    backgroundColor: '#e5e7eb',
+    padding: '4px 8px',
+    borderRadius: '999px',
+  },
+  resultVoters: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '6px',
+    marginTop: '10px',
+  },
+  voterTag: {
+    fontSize: '12px',
+    color: '#111827',
+    backgroundColor: '#e5e7eb',
+    padding: '4px 8px',
+    borderRadius: '999px',
+  },
   activeBadge: {
     display: 'flex',
     alignItems: 'center',
