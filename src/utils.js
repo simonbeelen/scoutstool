@@ -20,6 +20,7 @@ export const useSessionStorage = () => {
       const sessionData = {
         questions: data.questions,
         results: data.results,
+        responses: data.responses,
         timestamp: Date.now(),
       };
 
