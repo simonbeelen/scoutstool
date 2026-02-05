@@ -6,7 +6,7 @@ import { styles } from './styles';
 // INTERACTIVE BUTTON COMPONENT
 // ============================================
 
-export const InteractiveButton = ({ button, onClick, clickCount }) => {
+export const InteractiveButton = ({ button, onClick, clickCount, questionId }) => {
   return (
     <button
       onClick={onClick}
@@ -34,7 +34,26 @@ export const InteractiveButton = ({ button, onClick, clickCount }) => {
 // PARTICIPANT VIEW COMPONENT
 // ============================================
 
-export const ParticipantView = ({ sessionCode, buttons, onButtonClick, clickCounts }) => {
+export const ParticipantView = ({ sessionCode, question, onButtonClick, clickCounts }) => {
+  if (!question) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.content}>
+          <div style={styles.participantHeader}>
+            <div style={styles.sessionBadge}>
+              <div style={styles.statusDot}></div>
+              <span>Sessie: {sessionCode}</span>
+            </div>
+            <h1 style={styles.participantTitle}>Wachten op vraag...</h1>
+            <p style={styles.participantSubtitle}>
+              De host heeft nog geen vraag geselecteerd
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={styles.container}>
       <div style={styles.content}>
@@ -44,20 +63,27 @@ export const ParticipantView = ({ sessionCode, buttons, onButtonClick, clickCoun
             <div style={styles.statusDot}></div>
             <span>Sessie: {sessionCode}</span>
           </div>
-          <h1 style={styles.participantTitle}>Maak je keuze!</h1>
+          
+          {/* Vraag Titel */}
+          <div style={styles.questionTitleCard}>
+            <span style={styles.questionLabel}>Vraag {question.id}</span>
+            <h1 style={styles.participantTitle}>{question.question}</h1>
+          </div>
+          
           <p style={styles.participantSubtitle}>
-            Klik op een ontgrendelde knop
+            Klik op een ontgrendelde knop om te antwoorden
           </p>
         </div>
 
         {/* Interactive Buttons */}
         <div style={styles.buttonGrid}>
-          {buttons.map((button) => (
+          {question.buttons.map((button) => (
             <InteractiveButton
               key={button.id}
               button={button}
+              questionId={question.id}
               onClick={() => onButtonClick(button.id)}
-              clickCount={clickCounts[button.id] || 0}
+              clickCount={clickCounts[`${question.id}-${button.id}`] || 0}
             />
           ))}
         </div>

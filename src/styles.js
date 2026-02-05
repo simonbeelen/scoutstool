@@ -326,4 +326,85 @@ export const styles = {
     letterSpacing: '5px',
     color: '#333',
   },
+
+  // Question Selector
+  questionSelector: {
+    backgroundColor: 'white',
+    padding: '20px',
+    borderRadius: '8px',
+    marginBottom: '20px',
+    border: '1px solid #ddd',
+  },
+  selectorTitle: {
+    fontSize: '18px',
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: '15px',
+  },
+  questionList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
+  },
+  questionButton: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '15px',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    textAlign: 'left',
+  },
+  questionButtonContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '5px',
+  },
+  questionNumber: {
+    fontSize: '12px',
+    fontWeight: 'bold',
+    opacity: 0.7,
+  },
+  questionText: {
+    fontSize: '16px',
+    fontWeight: '600',
+  },
+
+  // Active Question Card
+  activeQuestionCard: {
+    backgroundColor: '#2563eb',
+    color: 'white',
+    padding: '20px',
+    borderRadius: '8px',
+    marginBottom: '20px',
+    textAlign: 'center',
+  },
+  activeQuestionTitle: {
+    fontSize: '24px',
+    fontWeight: 'bold',
+    margin: '0 0 8px 0',
+  },
+  activeQuestionSubtitle: {
+    fontSize: '14px',
+    opacity: 0.9,
+    margin: 0,
+  },
+
+  // Participant Question Display
+  questionTitleCard: {
+    backgroundColor: 'white',
+    padding: '20px',
+    borderRadius: '12px',
+    marginTop: '15px',
+    marginBottom: '10px',
+    border: '2px solid #ddd',
+  },
+  questionLabel: {
+    fontSize: '14px',
+    fontWeight: 'bold',
+    color: '#2563eb',
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
+  },
 };

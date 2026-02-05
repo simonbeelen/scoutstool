@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, Unlock, Copy, Check, QrCode, X } from 'lucide-react';
+import { Lock, Unlock, Copy, Check, QrCode, X, ChevronRight } from 'lucide-react';
 import { styles } from './styles';
 
 // ============================================
@@ -31,10 +31,50 @@ export const ButtonControl = ({ button, onToggle }) => {
 };
 
 // ============================================
+// QUESTION SELECTOR COMPONENT
+// ============================================
+
+export const QuestionSelector = ({ questions, activeQuestionId, onSelectQuestion }) => {
+  return (
+    <div style={styles.questionSelector}>
+      <h3 style={styles.selectorTitle}>Selecteer Vraag:</h3>
+      <div style={styles.questionList}>
+        {questions.map((question) => (
+          <button
+            key={question.id}
+            onClick={() => onSelectQuestion(question.id)}
+            style={{
+              ...styles.questionButton,
+              backgroundColor: question.id === activeQuestionId ? '#2563eb' : 'white',
+              color: question.id === activeQuestionId ? 'white' : '#333',
+              border: question.id === activeQuestionId ? '2px solid #2563eb' : '2px solid #ddd',
+            }}
+          >
+            <div style={styles.questionButtonContent}>
+              <span style={styles.questionNumber}>Vraag {question.id}</span>
+              <span style={styles.questionText}>{question.question}</span>
+            </div>
+            {question.id === activeQuestionId && (
+              <ChevronRight size={20} style={{ marginLeft: '10px' }} />
+            )}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ============================================
 // HOST DASHBOARD COMPONENT
 // ============================================
 
-export const HostDashboard = ({ sessionCode, buttons, onToggleButton }) => {
+export const HostDashboard = ({ 
+  sessionCode, 
+  questions, 
+  activeQuestionId, 
+  onSelectQuestion,
+  onToggleButton 
+}) => {
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
 
@@ -48,6 +88,9 @@ export const HostDashboard = ({ sessionCode, buttons, onToggleButton }) => {
   const joinUrl = `${window.location.origin}${window.location.pathname}?code=${sessionCode}`;
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(joinUrl)}`;
 
+  // Haal actieve vraag op
+  const activeQuestion = questions.find(q => q.id === activeQuestionId);
+
   return (
     <div style={styles.container}>
       <div style={styles.content}>
@@ -55,7 +98,7 @@ export const HostDashboard = ({ sessionCode, buttons, onToggleButton }) => {
         <div style={styles.header}>
           <div>
             <h1 style={styles.pageTitle}>Host Dashboard</h1>
-            <p style={styles.pageSubtitle}>Beheer je knoppen</p>
+            <p style={styles.pageSubtitle}>Beheer je vragen en knoppen</p>
           </div>
           <div style={styles.codeContainer}>
             <span style={styles.label}>Sessie Code:</span>
@@ -71,9 +114,26 @@ export const HostDashboard = ({ sessionCode, buttons, onToggleButton }) => {
           </div>
         </div>
 
-        {/* Button Controls */}
+        {/* Question Selector */}
+        <QuestionSelector 
+          questions={questions}
+          activeQuestionId={activeQuestionId}
+          onSelectQuestion={onSelectQuestion}
+        />
+
+        {/* Active Question Display */}
+        <div style={styles.activeQuestionCard}>
+          <h2 style={styles.activeQuestionTitle}>
+            Actieve Vraag: {activeQuestion.question}
+          </h2>
+          <p style={styles.activeQuestionSubtitle}>
+            Deelnemers zien nu deze vraag en opties
+          </p>
+        </div>
+
+        {/* Button Controls for Active Question */}
         <div style={styles.buttonGrid}>
-          {buttons.map((button) => (
+          {activeQuestion.buttons.map((button) => (
             <ButtonControl
               key={button.id}
               button={button}
