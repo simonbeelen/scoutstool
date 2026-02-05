@@ -46,10 +46,12 @@ export const ParticipantView = ({ sessionCode, questions = [], onButtonClick, us
             <div style={styles.participantButtonsGrid}>
               {question.buttons.map((button) => {
                 const isVoted = userVotes[question.id] === button.id;
+                const hasAlreadyVoted = userVotes[question.id] !== undefined && !isVoted;
                 return (
                   <button
                     key={button.id}
                     onClick={() => onButtonClick(question.id, button.id)}
+                    disabled={hasAlreadyVoted}
                     style={{
                       ...styles.participantButton,
                       backgroundColor: button.color,
@@ -57,6 +59,8 @@ export const ParticipantView = ({ sessionCode, questions = [], onButtonClick, us
                       boxShadow: isVoted ? `0 0 0 3px #000, 0 4px 12px rgba(0,0,0,0.3)` : '0 2px 4px rgba(0,0,0,0.1)',
                       transform: isVoted ? 'scale(1.05)' : 'scale(1)',
                       transition: 'all 0.2s',
+                      opacity: hasAlreadyVoted ? 0.5 : 1,
+                      cursor: hasAlreadyVoted ? 'not-allowed' : 'pointer',
                     }}
                   >
                     <div style={styles.participantButtonContent}>
