@@ -1,201 +1,173 @@
-import React, { useState } from 'react';
-import { Lock, Unlock, Copy, Check, QrCode, X, RotateCcw, BarChart3 } from 'lucide-react';
-import { styles } from './styles';
+import React, { useState, useEffect } from 'react';
+import { LandingPage } from './LandingPage';
+import { HostDashboard } from './HostDashboard';
+import { ParticipantView } from './ParticipantView';
+import { generateCode, useSessionStorage } from './utils';
 
 // ============================================
-// QUESTION CARD WITH RESULTS
+// MAIN APP - LIVE RESULTS SYSTEM
 // ============================================
 
-export const QuestionCard = ({ question, results, onToggle, onReset }) => {
-  // Bereken totaal aantal stemmen voor deze vraag
-  const totalVotes = question.buttons.reduce((sum, btn) => {
-    const key = `${question.id}-${btn.id}`;
-    return sum + (results[key] || 0);
-  }, 0);
+const InteractivePresentationApp = () => {
+  const [mode, setMode] = useState(null);
+  const [sessionCode, setSessionCode] = useState('');
+  
+  // ALLE VRAGEN MET HUN OPTIES
+  const [questions, setQuestions] = useState([
+    {
+      id: 1,
+      question: 'Blijf je leiding?',
+      active: false, // Is deze vraag open voor antwoorden?
+      buttons: [
+        { id: 1, label: 'Ja, blijf leiding', color: '#10b981' },
+        { id: 2, label: 'Nee, stop ermee', color: '#ef4444' },
+        { id: 3, label: 'Misschien/Twijfel', color: '#f59e0b' },
+      ]
+    },
+    {
+      id: 2,
+      question: 'Welk kamp verkies je?',
+      active: false,
+      buttons: [
+        { id: 1, label: 'Zomerkamp', color: '#f59e0b' },
+        { id: 2, label: 'Winterkamp', color: '#3b82f6' },
+        { id: 3, label: 'Beide', color: '#8b5cf6' },
+        { id: 4, label: 'Geen van beide', color: '#6b7280' },
+      ]
+    },
+    {
+      id: 3,
+      question: 'Hoeveel jaar ben je al leiding?',
+      active: false,
+      buttons: [
+        { id: 1, label: '0-2 jaar', color: '#10b981' },
+        { id: 2, label: '3-5 jaar', color: '#3b82f6' },
+        { id: 3, label: '6-10 jaar', color: '#f59e0b' },
+        { id: 4, label: '10+ jaar', color: '#ef4444' },
+      ]
+    },
+  ]);
+  
+  const [results, setResults] = useState({}); // Live resultaten per vraag/button
 
-  return (
-    <div style={styles.questionCard}>
-      {/* Header */}
-      <div style={styles.questionCardHeader}>
-        <div style={styles.questionCardTitleSection}>
-          <span style={styles.questionCardNumber}>Vraag {question.id}</span>
-          <h3 style={styles.questionCardTitle}>{question.question}</h3>
-        </div>
-        <div style={styles.questionCardActions}>
-          <button
-            onClick={() => onToggle(question.id)}
-            style={{
-              ...styles.toggleQuestionButton,
-              backgroundColor: question.active ? '#10b981' : '#ef4444',
-            }}
-          >
-            {question.active ? (
-              <>
-                <Unlock size={18} />
-                <span>Open</span>
-              </>
-            ) : (
-              <>
-                <Lock size={18} />
-                <span>Gesloten</span>
-              </>
-            )}
-          </button>
-          {totalVotes > 0 && (
-            <button
-              onClick={() => onReset(question.id)}
-              style={styles.resetButton}
-              title="Reset resultaten"
-            >
-              <RotateCcw size={18} />
-            </button>
-          )}
-        </div>
-      </div>
+  const { saveSession, loadSession } = useSessionStorage();
 
-      {/* Results */}
-      <div style={styles.resultsSection}>
-        <div style={styles.resultsSummary}>
-          <BarChart3 size={20} style={{ color: '#666' }} />
-          <span style={styles.totalVotesText}>Totaal: {totalVotes} stemmen</span>
-        </div>
-
-        <div style={styles.resultsGrid}>
-          {question.buttons.map((button) => {
-            const key = `${question.id}-${button.id}`;
-            const votes = results[key] || 0;
-            const percentage = totalVotes > 0 ? Math.round((votes / totalVotes) * 100) : 0;
-
-            return (
-              <div key={button.id} style={styles.resultItem}>
-                <div style={styles.resultItemHeader}>
-                  <div style={styles.resultItemLabel}>
-                    <div 
-                      style={{
-                        ...styles.colorDot,
-                        backgroundColor: button.color,
-                      }}
-                    />
-                    <span style={styles.resultItemText}>{button.label}</span>
-                  </div>
-                  <span style={styles.resultItemCount}>{votes} ({percentage}%)</span>
-                </div>
-                <div style={styles.progressBar}>
-                  <div
-                    style={{
-                      ...styles.progressFill,
-                      width: `${percentage}%`,
-                      backgroundColor: button.color,
-                    }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Status Badge */}
-      {question.active && (
-        <div style={styles.activeBadge}>
-          <div style={styles.pulseDot}></div>
-          <span>Deelnemers kunnen nu antwoorden</span>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// ============================================
-// HOST DASHBOARD COMPONENT
-// ============================================
-
-export const HostDashboard = ({ 
-  sessionCode, 
-  questions, 
-  results,
-  onToggleQuestion,
-  onResetResults 
-}) => {
-  const [copied, setCopied] = useState(false);
-  const [showQR, setShowQR] = useState(false);
-
-  const copyCode = () => {
-    navigator.clipboard.writeText(sessionCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const startAsHost = async () => {
+    const code = generateCode();
+    setSessionCode(code);
+    setMode('host');
+    await saveSession(code, { questions, results });
   };
 
-  const joinUrl = `${window.location.origin}${window.location.pathname}?code=${sessionCode}`;
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(joinUrl)}`;
+  const joinAsParticipant = async (code) => {
+    if (code.length === 6) {
+      setSessionCode(code);
+      setMode('participant');
+      const data = await loadSession(code);
+      if (data) {
+        setQuestions(data.questions);
+        setResults(data.results || {});
+      }
+    }
+  };
 
-  // Totaal aantal stemmen over alle vragen
-  const totalAllVotes = Object.values(results).reduce((sum, count) => sum + count, 0);
+  // Toggle vraag actief/inactief
+  const toggleQuestion = async (questionId) => {
+    try {
+      const updatedQuestions = questions.map((q) =>
+        q.id === questionId ? { ...q, active: !q.active } : q
+      );
+      console.log('Toggling question:', questionId, 'New state:', updatedQuestions);
+      setQuestions(updatedQuestions);
+      await saveSession(sessionCode, { questions: updatedQuestions, results });
+    } catch (error) {
+      console.error('Error toggling question:', error);
+    }
+  };
+
+  // Handle button click (participant) - update results
+  const handleButtonClick = async (questionId, buttonId) => {
+    const question = questions.find(q => q.id === questionId);
+    if (!question || !question.active) return;
+
+    const key = `${questionId}-${buttonId}`;
+    const newResults = {
+      ...results,
+      [key]: (results[key] || 0) + 1,
+    };
+    
+    setResults(newResults);
+    
+    // Save to storage for host to see
+    await saveSession(sessionCode, { questions, results: newResults });
+  };
+
+  // Reset results voor een specifieke vraag
+  const resetQuestionResults = async (questionId) => {
+    try {
+      const question = questions.find(q => q.id === questionId);
+      if (!question) return;
+
+      const newResults = { ...results };
+      question.buttons.forEach(btn => {
+        const key = `${questionId}-${btn.id}`;
+        delete newResults[key];
+      });
+      
+      setResults(newResults);
+      await saveSession(sessionCode, { questions, results: newResults });
+    } catch (error) {
+      console.error('Error resetting results:', error);
+    }
+  };
+
+  // Sync for participants AND host (voor live updates)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (sessionCode && mode) {
+      const interval = setInterval(async () => {
+        try {
+          const data = await loadSession(sessionCode);
+          if (data && data.questions && Array.isArray(data.questions)) {
+            setQuestions(data.questions);
+            setResults(data.results || {});
+          }
+        } catch (error) {
+          console.error('Error syncing:', error);
+        }
+      }, 2000);
+      return () => clearInterval(interval);
+    }
+  }, [mode, sessionCode]);
+
+  if (!mode) {
+    return (
+      <LandingPage 
+        onStartHost={startAsHost} 
+        onJoinSession={joinAsParticipant} 
+      />
+    );
+  }
+
+  if (mode === 'host') {
+    return (
+      <HostDashboard
+        sessionCode={sessionCode}
+        questions={questions}
+        results={results}
+        onToggleQuestion={toggleQuestion}
+        onResetResults={resetQuestionResults}
+      />
+    );
+  }
 
   return (
-    <div style={styles.container}>
-      <div style={styles.content}>
-        {/* Header */}
-        <div style={styles.hostHeader}>
-          <div style={styles.hostHeaderLeft}>
-            <h1 style={styles.hostTitle}>Live Resultaten</h1>
-            <p style={styles.hostSubtitle}>Beheer vragen en bekijk antwoorden live</p>
-          </div>
-          <div style={styles.hostHeaderRight}>
-            <div style={styles.statsBox}>
-              <span style={styles.statsLabel}>Totaal stemmen</span>
-              <span style={styles.statsNumber}>{totalAllVotes}</span>
-            </div>
-            <div style={styles.codeBox}>
-              <span style={styles.codeLabel}>Sessie Code</span>
-              <div style={styles.codeDisplay}>
-                <span style={styles.codeText}>{sessionCode}</span>
-                <button onClick={copyCode} style={styles.iconButton}>
-                  {copied ? <Check size={20} /> : <Copy size={20} />}
-                </button>
-                <button onClick={() => setShowQR(true)} style={styles.iconButton}>
-                  <QrCode size={20} />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Questions with Results */}
-        <div style={styles.questionsContainer}>
-          {questions.map((question) => (
-            <QuestionCard
-              key={question.id}
-              question={question}
-              results={results}
-              onToggle={onToggleQuestion}
-              onReset={onResetResults}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* QR Code Modal */}
-      {showQR && (
-        <div style={styles.modal} onClick={() => setShowQR(false)}>
-          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <div style={styles.modalHeader}>
-              <h2 style={styles.modalTitle}>Scan QR Code</h2>
-              <button onClick={() => setShowQR(false)} style={styles.closeButton}>
-                <X size={24} />
-              </button>
-            </div>
-            <div style={styles.qrContainer}>
-              <img src={qrCodeUrl} alt="QR Code" style={styles.qrImage} />
-              <p style={styles.qrText}>Scan om automatisch te joinen</p>
-              <div style={styles.qrCodeBox}>
-                <span style={styles.qrCodeText}>{sessionCode}</span>
-              </div>
-              <p style={styles.qrSubText}>Of voer de code handmatig in</p>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    <ParticipantView
+      sessionCode={sessionCode}
+      questions={questions}
+      onButtonClick={handleButtonClick}
+    />
   );
 };
+
+export default InteractivePresentationApp;

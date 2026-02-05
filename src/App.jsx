@@ -73,11 +73,16 @@ const InteractivePresentationApp = () => {
 
   // Toggle vraag actief/inactief
   const toggleQuestion = async (questionId) => {
-    const updatedQuestions = questions.map((q) =>
-      q.id === questionId ? { ...q, active: !q.active } : q
-    );
-    setQuestions(updatedQuestions);
-    await saveSession(sessionCode, { questions: updatedQuestions, results });
+    try {
+      const updatedQuestions = questions.map((q) =>
+        q.id === questionId ? { ...q, active: !q.active } : q
+      );
+      console.log('Toggling question:', questionId, 'New state:', updatedQuestions);
+      setQuestions(updatedQuestions);
+      await saveSession(sessionCode, { questions: updatedQuestions, results });
+    } catch (error) {
+      console.error('Error toggling question:', error);
+    }
   };
 
   // Handle button click (participant) - update results
@@ -99,17 +104,21 @@ const InteractivePresentationApp = () => {
 
   // Reset results voor een specifieke vraag
   const resetQuestionResults = async (questionId) => {
-    const question = questions.find(q => q.id === questionId);
-    if (!question) return;
+    try {
+      const question = questions.find(q => q.id === questionId);
+      if (!question) return;
 
-    const newResults = { ...results };
-    question.buttons.forEach(btn => {
-      const key = `${questionId}-${btn.id}`;
-      delete newResults[key];
-    });
-    
-    setResults(newResults);
-    await saveSession(sessionCode, { questions, results: newResults });
+      const newResults = { ...results };
+      question.buttons.forEach(btn => {
+        const key = `${questionId}-${btn.id}`;
+        delete newResults[key];
+      });
+      
+      setResults(newResults);
+      await saveSession(sessionCode, { questions, results: newResults });
+    } catch (error) {
+      console.error('Error resetting results:', error);
+    }
   };
 
   // Sync for participants AND host (voor live updates)
@@ -117,10 +126,14 @@ const InteractivePresentationApp = () => {
   useEffect(() => {
     if (sessionCode && mode) {
       const interval = setInterval(async () => {
-        const data = await loadSession(sessionCode);
-        if (data) {
-          setQuestions(data.questions);
-          setResults(data.results || {});
+        try {
+          const data = await loadSession(sessionCode);
+          if (data && data.questions && Array.isArray(data.questions)) {
+            setQuestions(data.questions);
+            setResults(data.results || {});
+          }
+        } catch (error) {
+          console.error('Error syncing:', error);
         }
       }, 2000);
       return () => clearInterval(interval);

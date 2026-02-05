@@ -6,9 +6,15 @@ import { styles } from './styles';
 // PARTICIPANT VIEW - SIMPLE & CLEAR
 // ============================================
 
-export const ParticipantView = ({ sessionCode, questions, onButtonClick }) => {
+export const ParticipantView = ({ sessionCode, questions = [], onButtonClick }) => {
+  // Safety check
+  if (!Array.isArray(questions)) {
+    questions = [];
+  }
+  
   // Filter alleen actieve vragen
-  const activeQuestions = questions.filter(q => q.active);
+  const activeQuestions = questions.filter(q => q && q.active);
+  const closedQuestions = questions.filter(q => q && !q.active);
 
   return (
     <div style={styles.participantContainer}>
@@ -59,14 +65,14 @@ export const ParticipantView = ({ sessionCode, questions, onButtonClick }) => {
         ))}
 
         {/* Closed Questions Preview */}
-        {questions.filter(q => !q.active).length > 0 && (
+        {closedQuestions.length > 0 && (
           <div style={styles.closedQuestionsSection}>
             <h3 style={styles.closedQuestionsTitle}>
               <Lock size={18} />
               Gesloten vragen
             </h3>
             <div style={styles.closedQuestionsList}>
-              {questions.filter(q => !q.active).map((question) => (
+              {closedQuestions.map((question) => (
                 <div key={question.id} style={styles.closedQuestionItem}>
                   <span style={styles.closedQuestionNumber}>Vraag {question.id}</span>
                   <span style={styles.closedQuestionText}>{question.question}</span>
