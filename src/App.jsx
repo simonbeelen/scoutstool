@@ -50,6 +50,7 @@ const InteractivePresentationApp = () => {
   ]);
   
   const [results, setResults] = useState({}); // Live resultaten per vraag/button
+  const [userVotes, setUserVotes] = useState({}); // Track deelnemer's votes: { questionId: buttonId }
 
   const { saveSession, loadSession, subscribeSession } = useSessionStorage();
 
@@ -134,15 +135,29 @@ const InteractivePresentationApp = () => {
     const question = questions.find(q => q.id === questionId);
     if (!question || !question.active) return;
 
-    const key = `${questionId}-${buttonId}`;
-    const newResults = {
-      ...results,
-      [key]: (results[key] || 0) + 1,
-    };
-    
+    const hasVoted = userVotes[questionId];
+    const newResults = { ...results };
+
+    // Als je al hebt gestemd en je klikt op dezelfde knop → stem verwijderen
+    if (hasVoted === buttonId) {
+      const key = `${questionId}-${buttonId}`;
+      newResults[key] = Math.max(0, (newResults[key] || 1) - 1);
+      setUserVotes((prev) => {
+        const updated = { ...prev };
+        delete updated[questionId];
+        return updated;
+      });
+    } else if (hasVoted) {
+      // Je hebt al gestemd op een ander antwoord → kan niet veranderen
+      return;
+    } else {
+      // Je hebt nog niet gestemd → stem toevoegen
+      const key = `${questionId}-${buttonId}`;
+      newResults[key] = (newResults[key] || 0) + 1;
+      setUserVotes((prev) => ({ ...prev, [questionId]: buttonId }));
+    }
+
     setResults(newResults);
-    
-    // Save to storage for host to see
     await saveSession(sessionCode, { questions, results: newResults });
   };
 
@@ -236,6 +251,7 @@ const InteractivePresentationApp = () => {
       sessionCode={sessionCode}
       questions={questions}
       onButtonClick={handleButtonClick}
+      userVotes={userVotes}
     />
   );
 };

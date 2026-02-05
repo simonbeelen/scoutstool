@@ -6,7 +6,7 @@ import { styles } from './styles';
 // PARTICIPANT VIEW - SIMPLE & CLEAR
 // ============================================
 
-export const ParticipantView = ({ sessionCode, questions = [], onButtonClick }) => {
+export const ParticipantView = ({ sessionCode, questions = [], onButtonClick, userVotes = {} }) => {
   // Safety check
   if (!Array.isArray(questions)) {
     questions = [];
@@ -44,22 +44,29 @@ export const ParticipantView = ({ sessionCode, questions = [], onButtonClick }) 
 
             {/* Answer Options */}
             <div style={styles.participantButtonsGrid}>
-              {question.buttons.map((button) => (
-                <button
-                  key={button.id}
-                  onClick={() => onButtonClick(question.id, button.id)}
-                  style={{
-                    ...styles.participantButton,
-                    backgroundColor: button.color,
-                  }}
-                >
-                  <div style={styles.participantButtonContent}>
-                    <span style={styles.participantButtonNumber}>{button.id}</span>
-                    <span style={styles.participantButtonLabel}>{button.label}</span>
-                  </div>
-                  <Check size={24} style={{ opacity: 0.8 }} />
-                </button>
-              ))}
+              {question.buttons.map((button) => {
+                const isVoted = userVotes[question.id] === button.id;
+                return (
+                  <button
+                    key={button.id}
+                    onClick={() => onButtonClick(question.id, button.id)}
+                    style={{
+                      ...styles.participantButton,
+                      backgroundColor: button.color,
+                      border: isVoted ? '3px solid #fff' : 'none',
+                      boxShadow: isVoted ? `0 0 0 3px #000, 0 4px 12px rgba(0,0,0,0.3)` : '0 2px 4px rgba(0,0,0,0.1)',
+                      transform: isVoted ? 'scale(1.05)' : 'scale(1)',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    <div style={styles.participantButtonContent}>
+                      <span style={styles.participantButtonNumber}>{button.id}</span>
+                      <span style={styles.participantButtonLabel}>{button.label}</span>
+                    </div>
+                    {isVoted && <Check size={24} style={{ fontWeight: 'bold', color: '#fff' }} />}
+                  </button>
+                );
+              })}
             </div>
           </div>
         ))}
