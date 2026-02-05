@@ -67,3 +67,6 @@ export const LandingPage = ({ onStartHost, onJoinSession }) => {
     </div>
   );
 };
+
+// Default export voor compatibiliteit
+export default LandingPage;
