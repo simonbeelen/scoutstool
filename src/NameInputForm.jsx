@@ -8,6 +8,7 @@ export const NameInputForm = ({ sessionCode, onNameSubmit }) => {
     e.preventDefault();
     const trimmedName = name.trim();
     if (trimmedName.length > 0) {
+      localStorage.setItem('scoutstool_participantName', trimmedName);
       onNameSubmit(trimmedName);
     }
   };

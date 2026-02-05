@@ -64,20 +64,24 @@ const InteractivePresentationApp = () => {
   useEffect(() => {
     const savedCode = localStorage.getItem('scoutstool_sessionCode');
     const savedMode = localStorage.getItem('scoutstool_mode');
+    const savedName = localStorage.getItem('scoutstool_participantName');
     
     if (savedCode && savedMode) {
       setSessionCode(savedCode);
       setMode(savedMode);
       
       // Load data from that session
-      if (savedMode === 'host') {
-        loadSession(savedCode).then(data => {
-          if (data) {
-            setQuestions(data.questions || []);
-            setResults(data.results || {});
-            setResponses(data.responses || {});
-          }
-        });
+      loadSession(savedCode).then(data => {
+        if (data) {
+          setQuestions(data.questions || []);
+          setResults(data.results || {});
+          setResponses(data.responses || {});
+        }
+      });
+      
+      // Restore participant name if in participant mode
+      if (savedMode === 'participant' && savedName) {
+        setParticipantName(savedName);
       }
     }
   }, []);
@@ -110,6 +114,7 @@ const InteractivePresentationApp = () => {
   const logout = () => {
     localStorage.removeItem('scoutstool_sessionCode');
     localStorage.removeItem('scoutstool_mode');
+    localStorage.removeItem('scoutstool_participantName');
     setMode(null);
     setSessionCode('');
     setParticipantName('');
